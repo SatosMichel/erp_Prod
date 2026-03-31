@@ -29,5 +29,5 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
-# Build artifacts
-backend/static/
+# Build artifacts (descomentado para incluir o frontend no deploy)
+# backend/static/
