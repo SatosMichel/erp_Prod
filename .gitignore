@@ -1,0 +1,33 @@
+# Dependências do Node/Frontend
+node_modules/
+dist/
+frontend/dist/
+
+# Ambientes virtuais Python
+.venv/
+venv/
+env/
+
+# Bancos de dados SQLite (não subir dados locais)
+*.db
+databases/
+
+# Cache Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Variáveis de ambiente
+.env
+.env.local
+
+# Arquivos temporários
+*.zip
+*.log
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+backend/static/
