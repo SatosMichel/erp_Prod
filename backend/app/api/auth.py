@@ -4,6 +4,7 @@ from sqlmodel import Session, select
 from app.models.database_master import master_engine
 from app.models.usuario import Usuario
 from app.models.empresa import Empresa
+from app.models.database import init_empresa_db
 from passlib.context import CryptContext
 from jose import jwt, JWTError
 from datetime import datetime, timedelta
@@ -142,6 +143,21 @@ def register(req: RegisterRequest, session: Session = Depends(get_master_session
     )
     session.add(new_user)
     session.commit()
+
+    # ── Auto-criar empresa e banco isolado para o CNPJ informado ──────────────
+    if req.cnpj:
+        empresa = session.exec(select(Empresa).where(Empresa.cnpj == req.cnpj)).first()
+        if not empresa:
+            # Cria registro da empresa no banco master com nome provisório
+            nova_empresa = Empresa(nome=req.nome, cnpj=req.cnpj, ativo=True)
+            session.add(nova_empresa)
+            session.commit()
+        # Garante que o arquivo .db isolado existe (cria se ainda não existe)
+        try:
+            init_empresa_db(req.cnpj)
+        except Exception:
+            pass  # Não bloqueia o cadastro se houver falha na criação do banco
+
     return {"message": "Cadastro realizado. Aguarde aprovação do administrador."}
 
 # ─── Administração de usuários ────────────────────────────────────────────────
@@ -175,4 +191,12 @@ def aprovar_usuario(user_id: int, token: str = Depends(oauth2_scheme), session: 
     user.is_approved = True
     session.add(user)
     session.commit()
+
+    # ── Garante que o banco isolado do CNPJ existe ao aprovar o usuário ───────
+    if user.cnpj_empresa:
+        try:
+            init_empresa_db(user.cnpj_empresa)
+        except Exception:
+            pass  # Não bloqueia a aprovação se houver qualquer problema
+
     return {"message": "Usuário aprovado"}

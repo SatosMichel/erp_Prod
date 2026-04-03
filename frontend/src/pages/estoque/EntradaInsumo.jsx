@@ -41,7 +41,7 @@ const styles = {
 export default function EntradaInsumo() {
   const [insumos, setInsumos] = useState([])
   const [entradas, setEntradas] = useState([])
-  const [form, setForm] = useState({ insumo_nome: "", valor_aquisicao: "", quantidade: "", data_aquisicao: "", condicao_pagamento: "À Vista", data_pagamento: "" })
+  const [form, setForm] = useState({ insumo_nome: "", valor_aquisicao: "", quantidade: "", data_aquisicao: "", condicao_pagamento: "À Vista", data_pagamento: "", unidade_medida: "UND" })
   const [msg, setMsg] = useState(null)
   const [loading, setLoading] = useState(false)
   const [nomeSugestoes, setNomeSugestoes] = useState([])
@@ -66,11 +66,10 @@ export default function EntradaInsumo() {
     }
   }
 
-  const selecionarInsumo = (nome) => {
-    setForm(f => ({ ...f, insumo_nome: nome }))
+  const selecionarInsumo = (insumo) => {
+    setForm(f => ({ ...f, insumo_nome: insumo.nome, unidade_medida: insumo.unidade_medida || "UND" }))
     setShowSugestoes(false)
-    const existe = insumos.find(i => i.nome === nome)
-    if (existe && !existe.ativo) {
+    if (!insumo.ativo) {
       setMsg({ type: "error", text: "⚠️ Este insumo está INATIVO e não pode receber entrada." })
     } else {
       setMsg(null)
@@ -92,7 +91,7 @@ export default function EntradaInsumo() {
       }
       await api("/entrada-insumo/", { method: "POST", data: payload })
       setMsg({ type: "success", text: "✅ Entrada registrada com sucesso!" })
-      setForm({ insumo_nome: "", valor_aquisicao: "", quantidade: "", data_aquisicao: "", condicao_pagamento: "À Vista", data_pagamento: "" })
+      setForm({ insumo_nome: "", valor_aquisicao: "", quantidade: "", data_aquisicao: "", condicao_pagamento: "À Vista", data_pagamento: "", unidade_medida: "UND" })
       carregar()
     } catch (err) {
       setMsg({ type: "error", text: `❌ ${err.response?.data?.detail || "Erro ao registrar entrada"}` })
@@ -127,10 +126,18 @@ export default function EntradaInsumo() {
                 }}>
                   {nomeSugestoes.map(i => (
                     <div key={i.id}
-                      onMouseDown={() => selecionarInsumo(i.nome)}
+                      onMouseDown={() => selecionarInsumo(i)}
                       style={{ padding: "10px 12px", cursor: "pointer", color: i.ativo ? "#cbd5e1" : "#64748b",
                         borderBottom: "1px solid rgba(255,255,255,0.04)", fontSize: "13px" }}>
-                      {i.nome} {!i.ativo && <span style={{ color: "#ef4444" }}>(inativo)</span>}
+                      {i.nome}
+                      {!i.ativo && <span style={{ color: "#ef4444" }}> (inativo)</span>}
+                      {i.unidade_medida && (
+                        <span style={{
+                          marginLeft: "8px", padding: "1px 8px", borderRadius: "20px", fontSize: "10px", fontWeight: 700,
+                          background: i.unidade_medida === "G" ? "rgba(245,158,11,0.15)" : "rgba(59,130,246,0.15)",
+                          color: i.unidade_medida === "G" ? "#fbbf24" : "#60a5fa",
+                        }}>{i.unidade_medida}</span>
+                      )}
                     </div>
                   ))}
                 </div>
@@ -147,6 +154,22 @@ export default function EntradaInsumo() {
               <input style={styles.input} required type="number" min="1"
                 value={form.quantidade} onChange={e => setForm(f => ({ ...f, quantidade: e.target.value }))}
                 placeholder="0" />
+              {/* Badge de unidade de medida */}
+              {form.unidade_medida && (
+                <div style={{ marginTop: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
+                  <span style={{
+                    padding: "3px 10px", borderRadius: "20px", fontSize: "11px", fontWeight: 700,
+                    background: form.unidade_medida === "G" ? "rgba(245,158,11,0.15)" : "rgba(59,130,246,0.15)",
+                    color: form.unidade_medida === "G" ? "#fbbf24" : "#60a5fa",
+                    border: `1px solid ${form.unidade_medida === "G" ? "rgba(245,158,11,0.3)" : "rgba(59,130,246,0.3)"}`,
+                  }}>
+                    {form.unidade_medida === "G" ? "⚖️ Gramas (G)" : "📦 Unidades (UND)"}
+                  </span>
+                  <span style={{ color: "#475569", fontSize: "11px" }}>
+                    {form.unidade_medida === "G" ? "Informe o total em gramas" : "Informe a quantidade em unidades"}
+                  </span>
+                </div>
+              )}
             </div>
             <div>
               <label style={styles.label}>Condição de Pagamento *</label>

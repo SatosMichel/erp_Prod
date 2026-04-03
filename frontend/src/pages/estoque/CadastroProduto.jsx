@@ -132,7 +132,11 @@ export default function CadastroProduto() {
                   <select style={styles.select} value={f.insumo_id} required={idx === 0}
                     onChange={e => updateFicha(idx, "insumo_id", e.target.value)}>
                     <option value="">— Selecione um insumo —</option>
-                    {insumos.map(i => <option key={i.id} value={i.id}>{i.nome}</option>)}
+                    {insumos.map(i => (
+                      <option key={i.id} value={i.id}>
+                        {i.nome} [{i.unidade_medida || "UND"}]
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
@@ -140,6 +144,23 @@ export default function CadastroProduto() {
                   <input style={styles.input} type="number" step="0.001" min="0.001"
                     value={f.quantidade_necessaria} onChange={e => updateFicha(idx, "quantidade_necessaria", e.target.value)}
                     placeholder="Ex: 1.5" required={!!f.insumo_id} />
+                  {/* Badge de unidade do insumo selecionado */}
+                  {f.insumo_id && (() => {
+                    const insumoSel = insumos.find(i => String(i.id) === String(f.insumo_id))
+                    const unit = insumoSel?.unidade_medida || "UND"
+                    return (
+                      <div style={{ marginTop: "4px" }}>
+                        <span style={{
+                          padding: "2px 8px", borderRadius: "20px", fontSize: "10px", fontWeight: 700,
+                          background: unit === "G" ? "rgba(245,158,11,0.15)" : "rgba(59,130,246,0.15)",
+                          color: unit === "G" ? "#fbbf24" : "#60a5fa",
+                          border: `1px solid ${unit === "G" ? "rgba(245,158,11,0.3)" : "rgba(59,130,246,0.3)"}`,
+                        }}>
+                          {unit === "G" ? "⚖️ Gramas" : "📦 Unidades"}
+                        </span>
+                      </div>
+                    )
+                  })()}
                 </div>
                 <div style={{ marginTop: idx === 0 ? "18px" : "0" }}>
                   {fichas.length > 1 && (
