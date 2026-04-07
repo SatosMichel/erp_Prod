@@ -20,9 +20,10 @@ class OrdemCreate(BaseModel):
 class ItemFicha(BaseModel):
     insumo_id: int
     insumo_nome: str
+    unidade_medida: str
     quantidade_necessaria: float
     quantidade_total: float
-    disponivel_estoque: int
+    disponivel_estoque: float
     suficiente: bool
 
 class OrcamentoResponse(BaseModel):
@@ -50,16 +51,17 @@ def consultar_orcamento(produto_id: int, quantidade: int = 1, session: Session =
         insumo = session.get(Insumo, ficha.insumo_id)
         if not insumo:
             continue
-        qtd_total = ficha.quantidade_necessaria * quantidade
-        suficiente = insumo.quantidade_estoque >= qtd_total
+        qtd_total = float(ficha.quantidade_necessaria) * float(quantidade)
+        suficiente = float(insumo.quantidade_estoque) >= qtd_total
         if not suficiente:
             pode_produzir = False
         itens.append(ItemFicha(
             insumo_id=insumo.id,
             insumo_nome=insumo.nome,
-            quantidade_necessaria=ficha.quantidade_necessaria,
+            unidade_medida=insumo.unidade_medida or "UND",
+            quantidade_necessaria=float(ficha.quantidade_necessaria),
             quantidade_total=qtd_total,
-            disponivel_estoque=insumo.quantidade_estoque,
+            disponivel_estoque=float(insumo.quantidade_estoque),
             suficiente=suficiente,
         ))
 

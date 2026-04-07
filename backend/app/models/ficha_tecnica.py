@@ -5,4 +5,4 @@ class FichaTecnica(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
     produto_id: int = Field(foreign_key="produto.id")
     insumo_id: int = Field(foreign_key="insumo.id")
-    quantidade_necessaria: int
+    quantidade_necessaria: float

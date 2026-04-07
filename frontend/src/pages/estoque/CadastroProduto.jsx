@@ -22,7 +22,7 @@ const styles = {
     color: type === "error" ? "#f87171" : "#34d399",
   }),
   row: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" },
-  fichaRow: { display: "grid", gridTemplateColumns: "1fr 120px 40px", gap: "8px", marginBottom: "8px", alignItems: "center" },
+  fichaRow: { display: "grid", gridTemplateColumns: "1fr 140px 80px 36px", gap: "8px", marginBottom: "8px", alignItems: "end" },
 }
 
 const fichaVazia = () => ({ insumo_id: "", quantidade_necessaria: "" })
@@ -125,53 +125,54 @@ export default function CadastroProduto() {
             </div>
             <div style={{ color: "#94a3b8", fontSize: "12px", marginBottom: "12px" }}>Selecione os insumos e a quantidade necessária para fabricar <strong style={{color:"white"}}>1 unidade</strong> do produto.</div>
 
-            {fichas.map((f, idx) => (
-              <div key={idx} style={styles.fichaRow}>
-                <div>
-                  {idx === 0 && <label style={styles.label}>Insumo *</label>}
-                  <select style={styles.select} value={f.insumo_id} required={idx === 0}
-                    onChange={e => updateFicha(idx, "insumo_id", e.target.value)}>
-                    <option value="">— Selecione um insumo —</option>
-                    {insumos.map(i => (
-                      <option key={i.id} value={i.id}>
-                        {i.nome} [{i.unidade_medida || "UND"}]
-                      </option>
-                    ))}
-                  </select>
+            {fichas.map((f, idx) => {
+              const insumoSel = insumos.find(i => String(i.id) === String(f.insumo_id))
+              const unit = insumoSel?.unidade_medida || "UND"
+              const isKG = unit === "KG"
+              return (
+                <div key={idx} style={styles.fichaRow}>
+                  <div>
+                    {idx === 0 && <label style={styles.label}>Insumo *</label>}
+                    <select style={styles.select} value={f.insumo_id} required={idx === 0}
+                      onChange={e => updateFicha(idx, "insumo_id", e.target.value)}>
+                      <option value="">— Selecione um insumo —</option>
+                      {insumos.map(i => (
+                        <option key={i.id} value={i.id}>
+                          {i.nome} [{i.unidade_medida || "UND"}]
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    {idx === 0 && <label style={styles.label}>Quantidade</label>}
+                    <input style={styles.input} type="number" step="0.001" min="0.001"
+                      value={f.quantidade_necessaria} onChange={e => updateFicha(idx, "quantidade_necessaria", e.target.value)}
+                      placeholder={isKG ? "Ex: 1.500" : "Ex: 2"} required={!!f.insumo_id} />
+                  </div>
+                  <div>
+                    {idx === 0 && <label style={styles.label}>Unid.</label>}
+                    <div style={{
+                      display: "flex", alignItems: "center", justifyContent: "center",
+                      padding: "10px 0", borderRadius: "8px", fontSize: "12px", fontWeight: 700,
+                      background: f.insumo_id ? (isKG ? "rgba(245,158,11,0.12)" : "rgba(59,130,246,0.12)") : "rgba(255,255,255,0.03)",
+                      border: `1px solid ${f.insumo_id ? (isKG ? "rgba(245,158,11,0.3)" : "rgba(59,130,246,0.3)") : "rgba(255,255,255,0.06)"}`,
+                      color: f.insumo_id ? (isKG ? "#fbbf24" : "#60a5fa") : "#475569",
+                      minHeight: "42px",
+                    }}>
+                      {f.insumo_id ? (isKG ? "⚖️ KG" : "📦 UND") : "—"}
+                    </div>
+                  </div>
+                  <div style={{ marginTop: idx === 0 ? "18px" : "0" }}>
+                    {fichas.length > 1 && (
+                      <button type="button" onClick={() => removeFicha(idx)}
+                        style={{ ...styles.btnSm("rgba(239,68,68,0.2)"), color: "#f87171", border: "1px solid rgba(239,68,68,0.3)" }}>
+                        ✕
+                      </button>
+                    )}
+                  </div>
                 </div>
-                <div>
-                  {idx === 0 && <label style={styles.label}>Quantidade</label>}
-                  <input style={styles.input} type="number" step="0.001" min="0.001"
-                    value={f.quantidade_necessaria} onChange={e => updateFicha(idx, "quantidade_necessaria", e.target.value)}
-                    placeholder="Ex: 1.5" required={!!f.insumo_id} />
-                  {/* Badge de unidade do insumo selecionado */}
-                  {f.insumo_id && (() => {
-                    const insumoSel = insumos.find(i => String(i.id) === String(f.insumo_id))
-                    const unit = insumoSel?.unidade_medida || "UND"
-                    return (
-                      <div style={{ marginTop: "4px" }}>
-                        <span style={{
-                          padding: "2px 8px", borderRadius: "20px", fontSize: "10px", fontWeight: 700,
-                          background: unit === "G" ? "rgba(245,158,11,0.15)" : "rgba(59,130,246,0.15)",
-                          color: unit === "G" ? "#fbbf24" : "#60a5fa",
-                          border: `1px solid ${unit === "G" ? "rgba(245,158,11,0.3)" : "rgba(59,130,246,0.3)"}`,
-                        }}>
-                          {unit === "G" ? "⚖️ Gramas" : "📦 Unidades"}
-                        </span>
-                      </div>
-                    )
-                  })()}
-                </div>
-                <div style={{ marginTop: idx === 0 ? "18px" : "0" }}>
-                  {fichas.length > 1 && (
-                    <button type="button" onClick={() => removeFicha(idx)}
-                      style={{ ...styles.btnSm("rgba(239,68,68,0.2)"), color: "#f87171", border: "1px solid rgba(239,68,68,0.3)" }}>
-                      ✕
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))}
+              )
+            })}
 
             <button type="button" onClick={addFicha}
               style={{ ...styles.btn("rgba(59,130,246,0.15)"), color: "#60a5fa", border: "1px solid rgba(59,130,246,0.3)", marginTop: "8px" }}>

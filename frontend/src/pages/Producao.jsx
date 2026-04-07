@@ -160,7 +160,7 @@ export default function Producao() {
           <table style={{ width: "100%", borderCollapse: "collapse", marginBottom: "20px" }}>
             <thead>
               <tr>
-                {["Insumo", "Qtd/Unidade", "Total Necessário", "Disponível", "Situação"].map(h => (
+                {["Insumo", "Unid.", "Qtd/Unidade", "Total Necessário", "Disponível", "Situação"].map(h => (
                   <th key={h} style={styles.th}>{h}</th>
                 ))}
               </tr>
@@ -169,10 +169,20 @@ export default function Producao() {
               {orcamento.itens.map(item => (
                 <tr key={item.insumo_id}>
                   <td style={{ ...styles.td, color: "#e2e8f0", fontWeight: 600 }}>{item.insumo_nome}</td>
-                  <td style={styles.td}>{item.quantidade_necessaria}</td>
-                  <td style={styles.td}>{item.quantidade_total}</td>
+                  <td style={styles.td}>
+                    <span style={{
+                      padding: "2px 8px", borderRadius: "20px", fontSize: "11px", fontWeight: 700,
+                      background: item.unidade_medida === "KG" ? "rgba(245,158,11,0.15)" : "rgba(59,130,246,0.15)",
+                      color: item.unidade_medida === "KG" ? "#fbbf24" : "#60a5fa",
+                      border: `1px solid ${item.unidade_medida === "KG" ? "rgba(245,158,11,0.3)" : "rgba(59,130,246,0.3)"}`,
+                    }}>
+                      {item.unidade_medida || "UND"}
+                    </span>
+                  </td>
+                  <td style={styles.td}>{item.quantidade_necessaria} {item.unidade_medida || "UND"}</td>
+                  <td style={styles.td}>{item.quantidade_total} {item.unidade_medida || "UND"}</td>
                   <td style={{ ...styles.td, color: item.suficiente ? "#34d399" : "#f87171", fontWeight: 700 }}>
-                    {item.disponivel_estoque}
+                    {item.disponivel_estoque} {item.unidade_medida || "UND"}
                   </td>
                   <td style={styles.td}>
                     <span style={{

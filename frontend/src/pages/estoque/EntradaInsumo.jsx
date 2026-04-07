@@ -134,8 +134,8 @@ export default function EntradaInsumo() {
                       {i.unidade_medida && (
                         <span style={{
                           marginLeft: "8px", padding: "1px 8px", borderRadius: "20px", fontSize: "10px", fontWeight: 700,
-                          background: i.unidade_medida === "G" ? "rgba(245,158,11,0.15)" : "rgba(59,130,246,0.15)",
-                          color: i.unidade_medida === "G" ? "#fbbf24" : "#60a5fa",
+                          background: i.unidade_medida === "KG" ? "rgba(245,158,11,0.15)" : "rgba(59,130,246,0.15)",
+                          color: i.unidade_medida === "KG" ? "#fbbf24" : "#60a5fa",
                         }}>{i.unidade_medida}</span>
                       )}
                     </div>
@@ -159,14 +159,14 @@ export default function EntradaInsumo() {
                 <div style={{ marginTop: "6px", display: "flex", alignItems: "center", gap: "6px" }}>
                   <span style={{
                     padding: "3px 10px", borderRadius: "20px", fontSize: "11px", fontWeight: 700,
-                    background: form.unidade_medida === "G" ? "rgba(245,158,11,0.15)" : "rgba(59,130,246,0.15)",
-                    color: form.unidade_medida === "G" ? "#fbbf24" : "#60a5fa",
-                    border: `1px solid ${form.unidade_medida === "G" ? "rgba(245,158,11,0.3)" : "rgba(59,130,246,0.3)"}`,
+                    background: form.unidade_medida === "KG" ? "rgba(245,158,11,0.15)" : "rgba(59,130,246,0.15)",
+                    color: form.unidade_medida === "KG" ? "#fbbf24" : "#60a5fa",
+                    border: `1px solid ${form.unidade_medida === "KG" ? "rgba(245,158,11,0.3)" : "rgba(59,130,246,0.3)"}`,
                   }}>
-                    {form.unidade_medida === "G" ? "⚖️ Gramas (G)" : "📦 Unidades (UND)"}
+                    {form.unidade_medida === "KG" ? "⚖️ Quilogramas (KG)" : "📦 Unidades (UND)"}
                   </span>
                   <span style={{ color: "#475569", fontSize: "11px" }}>
-                    {form.unidade_medida === "G" ? "Informe o total em gramas" : "Informe a quantidade em unidades"}
+                    {form.unidade_medida === "KG" ? "Informe o total em quilogramas" : "Informe a quantidade em unidades"}
                   </span>
                 </div>
               )}

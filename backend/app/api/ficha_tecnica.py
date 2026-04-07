@@ -30,6 +30,7 @@ def get_fichas_por_produto(produto_id: int, session: Session = Depends(get_empre
             "produto_id": f.produto_id,
             "insumo_id": f.insumo_id,
             "insumo_nome": insumo.nome if insumo else "N/A",
+            "unidade_medida": insumo.unidade_medida if insumo else "UND",
             "quantidade_necessaria": f.quantidade_necessaria,
         })
     return result

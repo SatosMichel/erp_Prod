@@ -24,9 +24,9 @@ const styles = {
   unitBadge: (unit) => ({
     display: "inline-flex", alignItems: "center", justifyContent: "center",
     padding: "2px 10px", borderRadius: "20px", fontSize: "11px", fontWeight: 700,
-    background: unit === "G" ? "rgba(245,158,11,0.1)" : "rgba(59,130,246,0.1)",
-    color: unit === "G" ? "#fbbf24" : "#60a5fa",
-    border: `1px solid ${unit === "G" ? "rgba(245,158,11,0.3)" : "rgba(59,130,246,0.3)"}`,
+    background: unit === "KG" ? "rgba(245,158,11,0.1)" : "rgba(59,130,246,0.1)",
+    color: unit === "KG" ? "#fbbf24" : "#60a5fa",
+    border: `1px solid ${unit === "KG" ? "rgba(245,158,11,0.3)" : "rgba(59,130,246,0.3)"}`,
   }),
 }
 
@@ -118,7 +118,7 @@ export default function EstoqueInsumo() {
             <div style={{ marginBottom: "20px" }}>
               <label style={styles.label}>📏 Unidade de Medida *</label>
               <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                {["UND", "G"].map(unit => (
+                {["UND", "KG"].map(unit => (
                   <button
                     key={unit}
                     type="button"
@@ -127,23 +127,23 @@ export default function EstoqueInsumo() {
                       padding: "10px 28px", borderRadius: "8px", fontSize: "14px", fontWeight: 700,
                       cursor: "pointer", transition: "all 0.15s ease",
                       background: form.unidade_medida === unit
-                        ? (unit === "G" ? "rgba(245,158,11,0.2)" : "rgba(59,130,246,0.2)")
+                        ? (unit === "KG" ? "rgba(245,158,11,0.2)" : "rgba(59,130,246,0.2)")
                         : "rgba(255,255,255,0.04)",
                       border: form.unidade_medida === unit
-                        ? `2px solid ${unit === "G" ? "#f59e0b" : "#3b82f6"}`
+                        ? `2px solid ${unit === "KG" ? "#f59e0b" : "#3b82f6"}`
                         : "2px solid rgba(255,255,255,0.06)",
                       color: form.unidade_medida === unit
-                        ? (unit === "G" ? "#fbbf24" : "#60a5fa")
+                        ? (unit === "KG" ? "#fbbf24" : "#60a5fa")
                         : "#475569",
                     }}
                   >
-                    {unit === "UND" ? "📦 UND — Unidade" : "⚖️ G — Gramas"}
+                    {unit === "UND" ? "📦 UND — Unidade" : "⚖️ KG — Quilogramas"}
                   </button>
                 ))}
                 <span style={{ color: "#475569", fontSize: "12px" }}>
                   {form.unidade_medida === "UND"
                     ? "Contagem em unidades inteiras (caixas, peças, litros...)"
-                    : "Contagem em gramas (ingredientes a granel, pós, etc.)"}
+                    : "Contagem em quilogramas (ingredientes a granel, pós, etc.)"}
                 </span>
               </div>
             </div>
