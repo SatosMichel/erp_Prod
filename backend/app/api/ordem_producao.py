@@ -127,11 +127,44 @@ def criar_ordem_producao(dados: OrdemCreate, session: Session = Depends(get_empr
         session.rollback()
         raise HTTPException(status_code=500, detail=f"Erro ao processar a ordem de produção: {str(e)}")
 
+@router.get("/ordens_producao/count")
+def contar_ordens(
+    data_inicio: Optional[str] = None,
+    data_fim: Optional[str] = None,
+    session: Session = Depends(get_empresa_session)
+):
+    todas = session.exec(select(OrdemProducao)).all()
+    filtradas = _filtrar_por_data(todas, data_inicio, data_fim)
+    return {"total": len(filtradas)}
+
+def _filtrar_por_data(ordens, data_inicio, data_fim):
+    from datetime import date
+    resultado = ordens
+    if data_inicio:
+        try:
+            di = date.fromisoformat(data_inicio)
+            resultado = [o for o in resultado if o.data_criacao and o.data_criacao.date() >= di]
+        except: pass
+    if data_fim:
+        try:
+            df = date.fromisoformat(data_fim)
+            resultado = [o for o in resultado if o.data_criacao and o.data_criacao.date() <= df]
+        except: pass
+    return resultado
+
 @router.get("/ordens_producao/")
-def listar_ordens(skip: int = 0, limit: int = 50, session: Session = Depends(get_empresa_session)):
-    ordens = session.exec(select(OrdemProducao).offset(skip).limit(limit)).all()
+def listar_ordens(
+    skip: int = 0,
+    limit: int = 50,
+    data_inicio: Optional[str] = None,
+    data_fim: Optional[str] = None,
+    session: Session = Depends(get_empresa_session)
+):
+    todas = session.exec(select(OrdemProducao).order_by(OrdemProducao.id.desc())).all()
+    filtradas = _filtrar_por_data(todas, data_inicio, data_fim)
+    paginadas = filtradas[skip: skip + limit]
     result = []
-    for o in ordens:
+    for o in paginadas:
         produto = session.get(Produto, o.produto_id)
         result.append({
             "id": o.id,
@@ -142,4 +175,4 @@ def listar_ordens(skip: int = 0, limit: int = 50, session: Session = Depends(get
             "data_criacao": o.data_criacao,
             "observacao": o.observacao,
         })
-    return result
+    return result

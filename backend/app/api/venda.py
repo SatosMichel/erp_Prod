@@ -100,9 +100,47 @@ def registrar_venda(dados: VendaCreate, session: Session = Depends(get_empresa_s
     
     return {"message": "Venda registrada com sucesso", "venda_id": venda.id, "margem": margem, "alerta": alerta_margin}
 
+@router.get("/vendas/count")
+def contar_vendas(
+    data_inicio: Optional[str] = None,
+    data_fim: Optional[str] = None,
+    session: Session = Depends(get_empresa_session)
+):
+    from datetime import date
+    todas = session.exec(select(Venda)).all()
+    if data_inicio:
+        try:
+            di = date.fromisoformat(data_inicio)
+            todas = [v for v in todas if v.data_venda and v.data_venda.date() >= di]
+        except: pass
+    if data_fim:
+        try:
+            df = date.fromisoformat(data_fim)
+            todas = [v for v in todas if v.data_venda and v.data_venda.date() <= df]
+        except: pass
+    return {"total": len(todas)}
+
 @router.get("/vendas/", response_model=List[Venda])
-def listar_vendas(skip: int = 0, limit: int = 100, session: Session = Depends(get_empresa_session)):
-    return session.exec(select(Venda).offset(skip).limit(limit)).all()
+def listar_vendas(
+    skip: int = 0,
+    limit: int = 20,
+    data_inicio: Optional[str] = None,
+    data_fim: Optional[str] = None,
+    session: Session = Depends(get_empresa_session)
+):
+    from datetime import date
+    todas = session.exec(select(Venda).order_by(Venda.id.desc())).all()
+    if data_inicio:
+        try:
+            di = date.fromisoformat(data_inicio)
+            todas = [v for v in todas if v.data_venda and v.data_venda.date() >= di]
+        except: pass
+    if data_fim:
+        try:
+            df = date.fromisoformat(data_fim)
+            todas = [v for v in todas if v.data_venda and v.data_venda.date() <= df]
+        except: pass
+    return todas[skip: skip + limit]
 
 @router.get("/vendas/custos_base")
 def get_custos_base_produtos(session: Session = Depends(get_empresa_session)):

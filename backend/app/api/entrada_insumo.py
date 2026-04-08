@@ -82,3 +82,24 @@ def registrar_entrada(entrada: EntradaInsumoCreate, session: Session = Depends(g
 def listar_entradas(skip: int = 0, limit: int = 100, session: Session = Depends(get_empresa_session)):
     return session.exec(select(EntradaInsumo).offset(skip).limit(limit)).all()
 
+@router.delete("/entrada-insumo/{entrada_id}")
+def excluir_entrada(entrada_id: int, session: Session = Depends(get_empresa_session)):
+    entrada = session.get(EntradaInsumo, entrada_id)
+    if not entrada:
+        raise HTTPException(status_code=404, detail="Entrada não encontrada.")
+    
+    insumo = session.get(Insumo, entrada.insumo_id)
+    if not insumo:
+        raise HTTPException(status_code=404, detail="Insumo não encontrado.")
+    
+    estoque_atual = insumo.quantidade_estoque or 0.0
+    if (estoque_atual - entrada.quantidade) < 0:
+        raise HTTPException(status_code=400, detail="Não é possível excluir. O estoque do insumo ficaria negativo.")
+    
+    insumo.quantidade_estoque = estoque_atual - entrada.quantidade
+    session.add(insumo)
+    session.delete(entrada)
+    session.commit()
+    
+    return {"detail": "Entrada excluída com sucesso."}
+

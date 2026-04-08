@@ -144,6 +144,22 @@ export default function EntradaInsumo() {
     return ins.caracteristica ? `${ins.nome} — ${ins.caracteristica}` : ins.nome
   }
 
+  const handleExcluir = async (id) => {
+    if (!window.confirm("Deseja realmente excluir esta entrada? O estoque correspondente será deduzido.")) return
+    setLoading(true)
+    try {
+      await api(`/entrada-insumo/${id}`, { method: "DELETE" })
+      setMsg({ type: "success", text: "✅ Entrada excluída com sucesso!" })
+      carregar()
+    } catch (err) {
+      const detail = err.response?.data?.detail || "Erro ao excluir entrada"
+      setMsg({ type: "error", text: `❌ ${detail}` })
+    } finally {
+      setLoading(false)
+      window.scrollTo({ top: 0, behavior: "smooth" })
+    }
+  }
+
   return (
     <div style={styles.page}>
       <div style={styles.title}>Entrada de Insumo</div>
@@ -326,7 +342,7 @@ export default function EntradaInsumo() {
           <table style={styles.table}>
             <thead>
               <tr>
-                {["#", "Insumo / Variação", "Unid.", "Qtd", "Valor Unit. (R$)", "Total (R$)", "Data"].map(h => (
+                {["#", "Insumo / Variação", "Unid.", "Qtd", "Valor Unit. (R$)", "Total (R$)", "Data", "Ação"].map(h => (
                   <th key={h} style={styles.th}>{h}</th>
                 ))}
               </tr>
@@ -351,6 +367,18 @@ export default function EntradaInsumo() {
                     <td style={styles.td}>R$ {(e.valor_aquisicao / e.quantidade).toFixed(2)}</td>
                     <td style={styles.td}>R$ {Number(e.valor_aquisicao).toFixed(2)}</td>
                     <td style={styles.td}>{new Date(e.data_aquisicao).toLocaleDateString("pt-BR")}</td>
+                    <td style={styles.td}>
+                      <button
+                        title="Excluir entrada"
+                        disabled={loading}
+                        onClick={() => handleExcluir(e.id)}
+                        style={{
+                          background: "rgba(239,68,68,0.15)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)",
+                          borderRadius: "6px", padding: "6px 10px", fontSize: "11px", fontWeight: 700, cursor: "pointer",
+                        }}>
+                        EXCLUIR
+                      </button>
+                    </td>
                   </tr>
                 )
               })}
