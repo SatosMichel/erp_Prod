@@ -13,16 +13,45 @@ router = APIRouter()
 class EntradaInsumoCreate(BaseModel):
     insumo_nome: str
     valor_aquisicao: float
-    quantidade: int
+    quantidade: float
+    unidade_medida: Optional[str] = "UND"
+    caracteristica: Optional[str] = None
     condicao_pagamento: Optional[str] = "À Vista"
     data_pagamento: Optional[date] = None
     data_aquisicao: Optional[date] = None  # data manual (opcional, padrão hoje)
 
 @router.post("/entrada-insumo/", response_model=EntradaInsumo)
 def registrar_entrada(entrada: EntradaInsumoCreate, session: Session = Depends(get_empresa_session)):
-    insumo = session.exec(select(Insumo).where(Insumo.nome == entrada.insumo_nome)).first()
+    # Monta a chave de busca: nome + característica (para diferenciar variações)
+    insumo = None
+
+    # Tenta encontrar por nome e característica
+    stmt = select(Insumo).where(Insumo.nome == entrada.insumo_nome)
+    candidatos = session.exec(stmt).all()
+
+    if entrada.caracteristica:
+        # Busca por nome + característica exata
+        for c in candidatos:
+            if (c.caracteristica or "").strip().lower() == entrada.caracteristica.strip().lower():
+                insumo = c
+                break
+    elif candidatos:
+        # Sem característica: pega o primeiro com mesmo nome e sem característica
+        for c in candidatos:
+            if not c.caracteristica:
+                insumo = c
+                break
+        if not insumo:
+            insumo = candidatos[0]  # fallback: primeiro com esse nome
+
     if not insumo:
-        insumo = Insumo(nome=entrada.insumo_nome, quantidade_estoque=0)
+        # Cadastra o insumo automaticamente ao dar a primeira entrada
+        insumo = Insumo(
+            nome=entrada.insumo_nome,
+            caracteristica=entrada.caracteristica,
+            unidade_medida=entrada.unidade_medida or "UND",
+            quantidade_estoque=0.0,
+        )
         session.add(insumo)
         session.commit()
         session.refresh(insumo)
@@ -43,7 +72,7 @@ def registrar_entrada(entrada: EntradaInsumoCreate, session: Session = Depends(g
         data_aquisicao=data,
     )
     session.add(nova_entrada)
-    insumo.quantidade_estoque += entrada.quantidade
+    insumo.quantidade_estoque = (insumo.quantidade_estoque or 0.0) + entrada.quantidade
     session.add(insumo)
     session.commit()
     session.refresh(nova_entrada)
@@ -52,3 +81,4 @@ def registrar_entrada(entrada: EntradaInsumoCreate, session: Session = Depends(g
 @router.get("/entrada-insumo/", response_model=List[EntradaInsumo])
 def listar_entradas(skip: int = 0, limit: int = 100, session: Session = Depends(get_empresa_session)):
     return session.exec(select(EntradaInsumo).offset(skip).limit(limit)).all()
+

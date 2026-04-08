@@ -6,6 +6,6 @@ class Insumo(SQLModel, table=True):
     nome: str = Field(unique=True, nullable=False)
     descricao: Optional[str] = None
     caracteristica: Optional[str] = None
-    quantidade_estoque: int = Field(default=0)
+    quantidade_estoque: float = Field(default=0.0)
     ativo: bool = Field(default=True)
     unidade_medida: Optional[str] = Field(default="UND")  # UND ou G

@@ -30,35 +30,18 @@ const styles = {
   }),
 }
 
-const formVazio = () => ({ nome: "", descricao: "", caracteristica: "", unidade_medida: "UND" })
+
+
 
 export default function EstoqueInsumo() {
   const [insumos, setInsumos] = useState([])
-  const [form, setForm] = useState(formVazio())
-  const [msg, setMsg] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [showForm, setShowForm] = useState(false)
 
   useEffect(() => { carregar() }, [])
 
   const carregar = async () => {
     const r = await api("/insumos/")
     setInsumos(r.data)
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-    setMsg(null)
-    try {
-      await api("/insumos/", { method: "POST", data: form })
-      setMsg({ type: "success", text: `✅ Insumo "${form.nome}" cadastrado com sucesso!` })
-      setForm(formVazio())
-      setShowForm(false)
-      carregar()
-    } catch (err) {
-      setMsg({ type: "error", text: `❌ ${err.response?.data?.detail || "Erro ao cadastrar insumo"}` })
-    } finally { setLoading(false) }
   }
 
   const toggleAtivo = async (id) => {
@@ -73,90 +56,13 @@ export default function EstoqueInsumo() {
   return (
     <div style={styles.page}>
       <div style={styles.title}>Estoque de Insumo</div>
-      <div style={styles.subtitle}>Visualize, cadastre e gerencie os insumos do estoque.</div>
-
-      {/* Botão abrir formulário */}
-      <div style={{ marginBottom: "16px" }}>
-        <button
-          onClick={() => { setShowForm(v => !v); setMsg(null) }}
-          style={styles.btn(showForm ? "rgba(255,255,255,0.06)" : "#3b82f6")}
-        >
-          {showForm ? "✕ Cancelar" : "＋ Cadastrar Novo Insumo"}
-        </button>
+      <div style={styles.subtitle}>
+        Visualize e gerencie os insumos cadastrados. Para registrar um novo insumo, utilize a aba <strong style={{ color: "#60a5fa" }}>Entrada de Insumo</strong>.
       </div>
 
-      {/* Formulário de cadastro */}
-      {showForm && (
-        <div style={styles.card}>
-          <div style={{ color: "#3b82f6", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px", marginBottom: "16px" }}>
-            ▸ Novo Insumo
-          </div>
-          {msg && <div style={styles.alert(msg.type)}>{msg.text}</div>}
-          <form onSubmit={handleSubmit}>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "16px", marginBottom: "16px" }}>
-              <div>
-                <label style={styles.label}>Nome do Insumo *</label>
-                <input style={styles.input} required value={form.nome}
-                  onChange={e => setForm(f => ({ ...f, nome: e.target.value }))}
-                  placeholder="Ex: Farinha de trigo" />
-              </div>
-              <div>
-                <label style={styles.label}>Descrição</label>
-                <input style={styles.input} value={form.descricao}
-                  onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))}
-                  placeholder="Opcional" />
-              </div>
-              <div>
-                <label style={styles.label}>Característica</label>
-                <input style={styles.input} value={form.caracteristica}
-                  onChange={e => setForm(f => ({ ...f, caracteristica: e.target.value }))}
-                  placeholder="Ex: Tipo 1, integral... (opcional)" />
-              </div>
-            </div>
 
-            {/* Seletor de Unidade de Medida */}
-            <div style={{ marginBottom: "20px" }}>
-              <label style={styles.label}>📏 Unidade de Medida *</label>
-              <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                {["UND", "KG"].map(unit => (
-                  <button
-                    key={unit}
-                    type="button"
-                    onClick={() => setForm(f => ({ ...f, unidade_medida: unit }))}
-                    style={{
-                      padding: "10px 28px", borderRadius: "8px", fontSize: "14px", fontWeight: 700,
-                      cursor: "pointer", transition: "all 0.15s ease",
-                      background: form.unidade_medida === unit
-                        ? (unit === "KG" ? "rgba(245,158,11,0.2)" : "rgba(59,130,246,0.2)")
-                        : "rgba(255,255,255,0.04)",
-                      border: form.unidade_medida === unit
-                        ? `2px solid ${unit === "KG" ? "#f59e0b" : "#3b82f6"}`
-                        : "2px solid rgba(255,255,255,0.06)",
-                      color: form.unidade_medida === unit
-                        ? (unit === "KG" ? "#fbbf24" : "#60a5fa")
-                        : "#475569",
-                    }}
-                  >
-                    {unit === "UND" ? "📦 UND — Unidade" : "⚖️ KG — Quilogramas"}
-                  </button>
-                ))}
-                <span style={{ color: "#475569", fontSize: "12px" }}>
-                  {form.unidade_medida === "UND"
-                    ? "Contagem em unidades inteiras (caixas, peças, litros...)"
-                    : "Contagem em quilogramas (ingredientes a granel, pós, etc.)"}
-                </span>
-              </div>
-            </div>
 
-            <button type="submit" style={styles.btn("#10b981")} disabled={loading}>
-              {loading ? "Salvando..." : "✓ Salvar Insumo"}
-            </button>
-          </form>
-        </div>
-      )}
 
-      {/* Mensagem fora do formulário (após fechar) */}
-      {msg && !showForm && <div style={styles.alert(msg.type)}>{msg.text}</div>}
 
       {/* Tabela de insumos */}
       <div style={styles.card}>

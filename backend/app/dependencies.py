@@ -22,13 +22,27 @@ def get_cnpj_from_token(token: str = Depends(oauth2_scheme)) -> str:
     except JWTError:
         raise HTTPException(status_code=401, detail="Token inválido")
 
+_migrated_engines = set()
+
+def _ensure_migrated(engine):
+    """Garante que o banco está migrado. Executa apenas uma vez por engine."""
+    engine_id = id(engine)
+    if engine_id not in _migrated_engines:
+        from app.models.database import migrate_empresa_db
+        from sqlmodel import SQLModel
+        SQLModel.metadata.create_all(engine)
+        migrate_empresa_db(engine)
+        _migrated_engines.add(engine_id)
+
 def get_empresa_session(cnpj: str = Depends(get_cnpj_from_token)):
     """Retorna uma sessão SQLModel apontada para o banco da empresa correta."""
     if cnpj == BASE_PADRAO_CNPJ:
+        _ensure_migrated(default_engine)
         with Session(default_engine) as session:
             yield session
     else:
         engine = get_engine_for(cnpj)
+        _ensure_migrated(engine)
         with Session(engine) as session:
             yield session
 

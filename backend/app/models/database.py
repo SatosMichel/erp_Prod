@@ -31,10 +31,33 @@ def get_engine_for(cnpj: str):
         _engines[slug] = create_engine(f"sqlite:///{db_path}", echo=False)
     return _engines[slug]
 
+def migrate_empresa_db(engine):
+    """
+    Aplica migrações incrementais no banco SQLite.
+    Adiciona colunas novas sem apagar dados existentes.
+    SQLite não suporta ALTER TABLE ADD COLUMN IF NOT EXISTS,
+    então verificamos as colunas existentes antes de adicionar.
+    """
+    from sqlalchemy import text
+    with engine.connect() as conn:
+        # ----- Tabela: insumo -----
+        try:
+            cols = [row[1] for row in conn.execute(text("PRAGMA table_info(insumo)")).fetchall()]
+            if "caracteristica" not in cols:
+                conn.execute(text("ALTER TABLE insumo ADD COLUMN caracteristica TEXT"))
+            if "unidade_medida" not in cols:
+                conn.execute(text("ALTER TABLE insumo ADD COLUMN unidade_medida TEXT DEFAULT 'UND'"))
+            if "descricao" not in cols:
+                conn.execute(text("ALTER TABLE insumo ADD COLUMN descricao TEXT"))
+            conn.commit()
+        except Exception:
+            pass  # tabela pode não existir ainda (criada em seguida pelo create_all)
+
 def init_empresa_db(cnpj: str):
     """Inicializa todas as tabelas operacionais para uma empresa específica."""
     engine = get_engine_for(cnpj)
     SQLModel.metadata.create_all(engine)
+    migrate_empresa_db(engine)
 
 def list_empresa_cnpjs() -> list:
     """Retorna a lista de slugs de empresas com banco criado."""
@@ -54,3 +77,4 @@ engine = create_engine(DATABASE_URL, echo=False)  # Mantido para a Base Padrão
 def init_db():
     """Inicializa o banco padrão (base de testes/demo)."""
     SQLModel.metadata.create_all(engine)
+    migrate_empresa_db(engine)
