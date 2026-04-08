@@ -210,17 +210,22 @@ def get_receitas(
         vendas = all_vendas
         extras = all_extras
         
-    total_receita_bruta = sum(v.valor_total for v in vendas) + sum(e.valor for e in extras)
-    total_receita_liquida = sum(v.valor_liquido for v in vendas) + sum(e.valor for e in extras)
+    total_receita_bruta = sum(v.preco_venda_unit * v.quantidade for v in vendas) + sum(e.valor for e in extras)
+    total_receita_liquida = sum(
+        v.custo_insumo_calculado + (v.preco_venda_unit * v.quantidade * v.margem_percentual / 100)
+        for v in vendas
+    ) + sum(e.valor for e in extras)
     
     itens = []
     for v in vendas:
+        valor_bruto = v.preco_venda_unit * v.quantidade
+        valor_liq = v.custo_insumo_calculado + (valor_bruto * v.margem_percentual / 100)
         itens.append({
             "id": f"vda_{v.id}",
             "tipo": "Venda Marketplace",
             "cliente": v.nome_cliente,
-            "valor_total": v.valor_total,
-            "valor_liquido": v.valor_liquido,
+            "valor_total": valor_bruto,
+            "valor_liquido": valor_liq,
             "data": v.data_venda.isoformat()
         })
     for e in extras:
@@ -261,8 +266,11 @@ def get_balanco(
     vendas_ano = [v for v in all_vendas if v.data_venda.year == ano]
     r_extras_ano = [r for r in all_r_extras if r.data_receita.year == ano]
     
-    receita_bruta = sum(v.valor_total for v in vendas_ano) + sum(r.valor for r in r_extras_ano)
-    receita_liquida = sum(v.valor_liquido for v in vendas_ano) + sum(r.valor for r in r_extras_ano)
+    receita_bruta = sum(v.preco_venda_unit * v.quantidade for v in vendas_ano) + sum(r.valor for r in r_extras_ano)
+    receita_liquida = sum(
+        v.custo_insumo_calculado + (v.preco_venda_unit * v.quantidade * v.margem_percentual / 100)
+        for v in vendas_ano
+    ) + sum(r.valor for r in r_extras_ano)
     
     despesa_insumo = sum(getattr(i, 'valor_aquisicao', 0) or 0 for i in insumos_ano)
     despesa_extra = sum(e.valor for e in extras_ano)
@@ -277,7 +285,10 @@ def get_balanco(
     # Montando a representação mês a mês
     meses_array = []
     for mes in range(1, 13):
-        v_mes = sum(v.valor_liquido for v in vendas_ano if v.data_venda.month == mes)
+        v_mes = sum(
+            v.custo_insumo_calculado + (v.preco_venda_unit * v.quantidade * v.margem_percentual / 100)
+            for v in vendas_ano if v.data_venda.month == mes
+        )
         r_mes = sum(r.valor for r in r_extras_ano if r.data_receita.month == mes)
         di_mes = sum(
             getattr(i, 'valor_aquisicao', 0) or 0 for i in insumos_ano 
@@ -333,7 +344,8 @@ def get_dashboard_kpis(
     todas_vendas = session.exec(select(Venda)).all()
     all_r_extras = session.exec(select(ReceitaExtra)).all()
     receita_mes = sum(
-        v.valor_liquido for v in todas_vendas
+        v.custo_insumo_calculado + (v.preco_venda_unit * v.quantidade * v.margem_percentual / 100)
+        for v in todas_vendas
         if v.data_venda.month == mes_atual and v.data_venda.year == ano_atual
     ) + sum(
         e.valor for e in all_r_extras
