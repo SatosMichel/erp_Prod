@@ -11,6 +11,13 @@ export default function SelectBase() {
   const [error, setError] = useState("")
 
   useEffect(() => {
+    const style = document.createElement("style")
+    style.innerHTML = `@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`
+    document.head.appendChild(style)
+    return () => { document.head.removeChild(style) }
+  }, [])
+
+  useEffect(() => {
     const preToken = localStorage.getItem("pre_token")
     if (!preToken) { navigate("/"); return }
     axios.get("/api/empresas/", { headers: { Authorization: `Bearer ${preToken}` } })
@@ -89,7 +96,6 @@ export default function SelectBase() {
           )}
         </div>
       </div>
-      <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
     </div>
   )
 }

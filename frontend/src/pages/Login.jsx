@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
 import { Building2, AlertCircle, ArrowRight, Loader2, Hash } from "lucide-react"
@@ -23,6 +23,18 @@ export default function Login() {
   const [cnpj, setCnpj] = useState("")
 
   const isSuperAdmin = email.trim().toLowerCase() === SUPERADMIN
+
+  useEffect(() => {
+    const style = document.createElement("style")
+    style.innerHTML = `
+      @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+      @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+      input::placeholder { color: #334155; }
+      @media(min-width: 900px) { .left-panel { display: flex !important; } }
+    `
+    document.head.appendChild(style)
+    return () => { document.head.removeChild(style) }
+  }, [])
   // CNPJ só é exigido na hora do cadastro (fica gravado no perfil)
   // No login basta email + senha (super admin vai para seleção de base)
 
@@ -170,12 +182,6 @@ export default function Login() {
         </div>
       </div>
 
-      <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        input::placeholder { color: #334155; }
-        @media(min-width: 900px) { .left-panel { display: flex !important; } }
-      `}</style>
     </div>
   )
 }
