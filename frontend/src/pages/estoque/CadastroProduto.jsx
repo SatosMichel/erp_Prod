@@ -112,7 +112,6 @@ export default function CadastroProduto() {
                   onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} placeholder="Opcional" />
               </div>
             </div>
-            </div>
             <div style={styles.row}>
               <div>
                 <label style={styles.label}>Característica</label>
