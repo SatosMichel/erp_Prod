@@ -102,5 +102,16 @@ def read_root():
 static_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "static")
 os.makedirs(static_dir, exist_ok=True)
 
-app.mount("/static", StaticFiles(directory=static_dir), name="static_assets")
-app.mount("/web", StaticFiles(directory=static_dir), name="web")
+class SPAStaticFiles(StaticFiles):
+    async def get_response(self, path: str, scope):
+        response = await super().get_response(path, scope)
+        if path.endswith(".html"):
+            response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+            response.headers["Pragma"] = "no-cache"
+            response.headers["Expires"] = "0"
+        else:
+            response.headers["Cache-Control"] = "public, max-age=31536000, immutable"
+        return response
+
+app.mount("/static", SPAStaticFiles(directory=static_dir), name="static_assets")
+app.mount("/web", SPAStaticFiles(directory=static_dir), name="web")
