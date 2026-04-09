@@ -182,7 +182,14 @@ export default function Producao() {
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
             <div>
               <div style={{ color: "white", fontWeight: 800, fontSize: "16px" }}>{orcamento.produto_nome}</div>
-              <div style={{ color: "#475569", fontSize: "13px" }}>{orcamento.quantidade} unidade(s) a produzir</div>
+              <div style={{ color: "#475569", fontSize: "13px" }}>
+                {orcamento.quantidade} unidade(s) a produzir
+                {produtos.find(p => p.id === parseInt(produtoSelecionado))?.tempo_producao_horas > 0 && (
+                  <span style={{ marginLeft: "8px", color: "#f59e0b", fontWeight: 600 }}>
+                    • ⏱️ Previsão de {(produtos.find(p => p.id === parseInt(produtoSelecionado))?.tempo_producao_horas * quantidade).toFixed(1)} horas de trabalho
+                  </span>
+                )}
+              </div>
             </div>
             <span style={{
               padding: "4px 14px", borderRadius: "20px", fontSize: "12px", fontWeight: 700,

@@ -9,6 +9,7 @@ import ControleEstoque from "./pages/ControleEstoque"
 import FinanceiroLayout from "./pages/financeiro/FinanceiroLayout"
 import VendasLayout from "./pages/vendas/VendasLayout"
 import Gestao from "./pages/Gestao"
+import CentralAjuda from "./pages/CentralAjuda"
 
 function PrivateRoute({ children }) {
   const token = localStorage.getItem("jwt_token");
@@ -35,6 +36,7 @@ function App() {
           <Route path="financeiro/*" element={<FinanceiroLayout />} />
           <Route path="vendas/*" element={<VendasLayout />} />
           <Route path="gestao" element={<Gestao />} />
+          <Route path="ajuda" element={<CentralAjuda />} />
         </Route>
 
         <Route path="*" element={<Navigate to="/dashboard" replace />} />

@@ -30,7 +30,7 @@ const fichaVazia = () => ({ insumo_id: "", quantidade_necessaria: "" })
 export default function CadastroProduto() {
   const [insumos, setInsumos] = useState([])
   const [produtos, setProdutos] = useState([])
-  const [form, setForm] = useState({ nome: "", descricao: "", caracteristica: "" })
+  const [form, setForm] = useState({ nome: "", descricao: "", caracteristica: "", idcodbar: "", tempo_producao_horas: "" })
   const [fichas, setFichas] = useState([fichaVazia()])
   const [msg, setMsg] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -75,7 +75,7 @@ export default function CadastroProduto() {
       }
 
       setMsg({ type: "success", text: `✅ Produto "${form.nome}" cadastrado com sucesso! Estoque inicial: 0 unidades.` })
-      setForm({ nome: "", descricao: "", caracteristica: "" })
+      setForm({ nome: "", descricao: "", caracteristica: "", idcodbar: "", tempo_producao_horas: "" })
       setFichas([fichaVazia()])
       setDuplicado(false)
       carregar()
@@ -112,10 +112,24 @@ export default function CadastroProduto() {
                   onChange={e => setForm(f => ({ ...f, descricao: e.target.value }))} placeholder="Opcional" />
               </div>
             </div>
-            <div>
-              <label style={styles.label}>Característica</label>
-              <input style={styles.input} value={form.caracteristica}
-                onChange={e => setForm(f => ({ ...f, caracteristica: e.target.value }))} placeholder="Tamanho, cor, etc. (opcional)" />
+            </div>
+            <div style={styles.row}>
+              <div>
+                <label style={styles.label}>Característica</label>
+                <input style={styles.input} value={form.caracteristica}
+                  onChange={e => setForm(f => ({ ...f, caracteristica: e.target.value }))} placeholder="Tamanho, cor, etc. (opcional)" />
+              </div>
+              <div>
+                <label style={styles.label}>ID Código de Barras</label>
+                <input style={styles.input} value={form.idcodbar}
+                  onChange={e => setForm(f => ({ ...f, idcodbar: e.target.value }))} placeholder="Cod. Customizado (opcional)" />
+              </div>
+            </div>
+            <div style={{ marginBottom: "16px", maxWidth: "260px" }}>
+              <label style={styles.label}>Tempo de Produção (em horas) *</label>
+              <input style={styles.input} type="number" step="0.5" min="0" required
+                value={form.tempo_producao_horas}
+                onChange={e => setForm(f => ({ ...f, tempo_producao_horas: e.target.value }))} placeholder="Ex: 2.5 horas" />
             </div>
           </div>
 
@@ -199,7 +213,7 @@ export default function CadastroProduto() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                {["CODPROD", "Nome", "Descrição", "Característica", "Estoque", "Status"].map(h => (
+                {["CODBAR", "Nome", "Descrição", "Característica", "Horas", "Estoque", "Status"].map(h => (
                   <th key={h} style={{ color: "#475569", fontSize: "11px", textTransform: "uppercase", letterSpacing: "0.5px", padding: "10px 12px", textAlign: "left", borderBottom: "1px solid rgba(255,255,255,0.06)" }}>{h}</th>
                 ))}
               </tr>
@@ -207,10 +221,11 @@ export default function CadastroProduto() {
             <tbody>
               {produtos.map(p => (
                 <tr key={p.id}>
-                  <td style={{ color: "#64748b", fontSize: "12px", padding: "12px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)", fontFamily: "monospace" }}>#{p.id}</td>
+                  <td style={{ color: "#64748b", fontSize: "12px", padding: "12px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)", fontFamily: "monospace" }}>{p.idcodbar || `#${p.id}`}</td>
                   <td style={{ color: "#e2e8f0", fontSize: "13px", padding: "12px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)", fontWeight: 600 }}>{p.nome}</td>
                   <td style={{ color: "#94a3b8", fontSize: "13px", padding: "12px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{p.descricao || "—"}</td>
                   <td style={{ color: "#94a3b8", fontSize: "13px", padding: "12px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{p.caracteristica || "—"}</td>
+                  <td style={{ color: "#94a3b8", fontSize: "13px", padding: "12px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>{p.tempo_producao_horas ? `${p.tempo_producao_horas}h` : "—"}</td>
                   <td style={{ color: p.quantidade_estoque > 0 ? "#34d399" : "#94a3b8", fontSize: "13px", padding: "12px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)", fontWeight: 600 }}>{p.quantidade_estoque}</td>
                   <td style={{ padding: "12px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)" }}>
                     <span style={{ padding: "3px 10px", borderRadius: "20px", fontSize: "11px", fontWeight: 700,

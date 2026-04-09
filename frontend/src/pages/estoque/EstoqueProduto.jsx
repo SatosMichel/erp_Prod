@@ -46,7 +46,7 @@ export default function EstoqueProduto() {
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>
               <tr>
-                {["CODPROD", "Nome", "Descrição", "Característica", "Qtd Estoque", "Status", "Ação"].map(h => (
+                {["CODBAR", "Nome", "Descrição", "Característica", "Horas", "Qtd Estoque", "Status", "Ação"].map(h => (
                   <th key={h} style={styles.th}>{h}</th>
                 ))}
               </tr>
@@ -54,10 +54,11 @@ export default function EstoqueProduto() {
             <tbody>
               {produtos.map(p => (
                 <tr key={p.id}>
-                  <td style={{ ...styles.td, color: "#64748b", fontFamily: "monospace", fontSize: "12px" }}>#{p.id}</td>
+                  <td style={{ ...styles.td, color: "#64748b", fontFamily: "monospace", fontSize: "12px" }}>{p.idcodbar || `#${p.id}`}</td>
                   <td style={{ ...styles.td, color: "#e2e8f0", fontWeight: 600 }}>{p.nome}</td>
                   <td style={styles.td}>{p.descricao || "—"}</td>
                   <td style={styles.td}>{p.caracteristica || "—"}</td>
+                  <td style={styles.td}>{p.tempo_producao_horas ? `${p.tempo_producao_horas}h` : "—"}</td>
                   <td style={{ ...styles.td, color: p.quantidade_estoque > 0 ? "#34d399" : "#64748b", fontWeight: 700, fontSize: "14px" }}>
                     {p.quantidade_estoque}
                   </td>

@@ -51,7 +51,49 @@ def migrate_empresa_db(engine):
                 conn.execute(text("ALTER TABLE insumo ADD COLUMN descricao TEXT"))
             conn.commit()
         except Exception:
-            pass  # tabela pode não existir ainda (criada em seguida pelo create_all)
+            pass
+
+        # ----- Tabela: produto -----
+        try:
+            cols = [row[1] for row in conn.execute(text("PRAGMA table_info(produto)")).fetchall()]
+            if "tempo_producao_horas" not in cols:
+                conn.execute(text("ALTER TABLE produto ADD COLUMN tempo_producao_horas FLOAT DEFAULT 0.0"))
+            if "idcodbar" not in cols:
+                conn.execute(text("ALTER TABLE produto ADD COLUMN idcodbar TEXT DEFAULT ''"))
+            conn.commit()
+        except Exception:
+            pass
+
+        # Migração das travas UNIQUE (reconstruindo a tabela em SQLite)
+        try:
+            from sqlmodel import SQLModel
+            insumo_schema = conn.execute(text("SELECT sql FROM sqlite_master WHERE type='table' AND name='insumo'")).scalar()
+            if insumo_schema and "UNIQUE (nome)" in insumo_schema:
+                # Extraindo todas as colunas existentes para não haver erro no INSERT
+                cols = [row[1] for row in conn.execute(text("PRAGMA table_info(insumo)")).fetchall()]
+                cols_str = ", ".join(cols)
+                conn.execute(text("ALTER TABLE insumo RENAME TO insumo_old"))
+                conn.commit()
+                # Recria a tabela com as novas regras da classe no SQLModel
+                SQLModel.metadata.tables['insumo'].create(engine)
+                # Copia e Dropa
+                conn.execute(text(f"INSERT INTO insumo ({cols_str}) SELECT {cols_str} FROM insumo_old"))
+                conn.execute(text("DROP TABLE insumo_old"))
+                conn.commit()
+
+            produto_schema = conn.execute(text("SELECT sql FROM sqlite_master WHERE type='table' AND name='produto'")).scalar()
+            if produto_schema and "UNIQUE (nome)" in produto_schema:
+                cols = [row[1] for row in conn.execute(text("PRAGMA table_info(produto)")).fetchall()]
+                cols_str = ", ".join(cols)
+                conn.execute(text("ALTER TABLE produto RENAME TO produto_old"))
+                conn.commit()
+                SQLModel.metadata.tables['produto'].create(engine)
+                conn.execute(text(f"INSERT INTO produto ({cols_str}) SELECT {cols_str} FROM produto_old"))
+                conn.execute(text("DROP TABLE produto_old"))
+                conn.commit()
+
+        except Exception as e:
+            print("Erro ao tentar remover constraint unique:", e)  # tabela pode não existir ainda (criada em seguida pelo create_all)
 
 def init_empresa_db(cnpj: str):
     """Inicializa todas as tabelas operacionais para uma empresa específica."""

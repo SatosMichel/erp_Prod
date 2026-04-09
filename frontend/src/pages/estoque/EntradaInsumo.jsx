@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
+import { Tooltip } from "../../components/ui/Tooltip"
 
 const token = () => localStorage.getItem("jwt_token")
 const api = (url, opts = {}) =>
@@ -229,7 +230,10 @@ export default function EntradaInsumo() {
 
           {/* Seletor de Unidade de Medida */}
           <div style={{ marginBottom: "20px" }}>
-            <label style={styles.label}>📏 Unidade de Medida *</label>
+            <label style={{...styles.label, display: "flex", alignItems: "center"}}>
+              📏 Unidade de Medida *
+              <Tooltip position="top" text="Dica: Escolha KG se você pesa o insumo. O sistema fará a baixa na produção usando KG (ex: para usar 50 gramas na produção, você informará 0.05 KG)." />
+            </label>
             <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
               {["UND", "KG"].map(unit => (
                 <button
@@ -274,8 +278,9 @@ export default function EntradaInsumo() {
             </div>
 
             <div>
-              <label style={styles.label}>
+              <label style={{...styles.label, display: "flex", alignItems: "center"}}>
                 Quantidade * {form.unidade_medida === "KG" ? "(KG)" : "(UND)"}
+                <Tooltip position="top" text="Use ponto para fracionar quilogramas. Exemplo: Para 1 quilo e meio, digite 1.5. Para 200 gramas, digite 0.200." />
               </label>
               <input
                 style={styles.input} required

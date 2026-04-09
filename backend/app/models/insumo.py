@@ -3,7 +3,7 @@ from typing import Optional
 
 class Insumo(SQLModel, table=True):
     id: int = Field(default=None, primary_key=True)
-    nome: str = Field(unique=True, nullable=False)
+    nome: str = Field(nullable=False)
     descricao: Optional[str] = None
     caracteristica: Optional[str] = None
     quantidade_estoque: float = Field(default=0.0)

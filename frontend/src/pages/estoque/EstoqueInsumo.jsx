@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react"
 import axios from "axios"
+import { Tooltip } from "../../components/ui/Tooltip"
 
 const token = () => localStorage.getItem("jwt_token")
 const api = (url, opts = {}) =>
@@ -70,7 +71,18 @@ export default function EstoqueInsumo() {
           Insumos Cadastrados ({insumos.length})
         </div>
         {insumos.length === 0 ? (
-          <div style={{ color: "#475569", textAlign: "center", padding: "32px" }}>Nenhum insumo cadastrado.</div>
+          <div style={{ color: "#475569", textAlign: "center", padding: "48px 24px", background: "rgba(255,255,255,0.02)", borderRadius: "12px", border: "1px dashed rgba(255,255,255,0.1)" }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>📦</div>
+            <h3 style={{ color: 'white', fontSize: '18px', fontWeight: 700, marginBottom: '8px' }}>Seu estoque está vazio!</h3>
+            <p style={{ fontSize: '14px', marginBottom: '24px', maxWidth: '400px', margin: '0 auto 24px' }}>
+              Para que os insumos (matérias-primas) apareçam aqui, você primeiro precisa registrar a compra deles no sistema.
+            </p>
+            <p>
+              <a href="#/entrada-insumo" style={{ display: 'inline-block', background: "#3b82f6", color: "white", padding: "10px 20px", borderRadius: "8px", textDecoration: 'none', fontWeight: 600 }}>
+                👉 Vá para Entrada de Insumos
+              </a>
+            </p>
+          </div>
         ) : (
           <table style={{ width: "100%", borderCollapse: "collapse" }}>
             <thead>

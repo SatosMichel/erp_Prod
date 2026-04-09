@@ -2,7 +2,7 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom"
 import { useState, useEffect } from "react"
 import {
   Building2, LayoutDashboard, Package, Calculator,
-  ShoppingCart, UserCheck, LogOut, LineChart, ChevronLeft, Menu, Settings
+  ShoppingCart, UserCheck, LogOut, LineChart, ChevronLeft, Menu, Settings, HelpCircle
 } from "lucide-react"
 import Configuracoes from "../pages/Configuracoes"
 
@@ -13,6 +13,7 @@ const navItems = [
   { title: "Financeiro", icon: Calculator, href: "/dashboard/financeiro" },
   { title: "Vendas", icon: ShoppingCart, href: "/dashboard/vendas" },
   { title: "Gestão / DRE", icon: LineChart, href: "/dashboard/gestao" },
+  { title: "Central de Ajuda", icon: HelpCircle, href: "/dashboard/ajuda" },
 ]
 
 export default function DashboardLayout() {

@@ -1,6 +1,7 @@
 from app.dependencies import get_empresa_session
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import Session, select
+from sqlalchemy import func
 from app.models.produto import Produto
 from typing import List
 
@@ -9,9 +10,13 @@ router = APIRouter()
 
 @router.post("/produtos/", response_model=Produto)
 def create_produto(produto: Produto, session: Session = Depends(get_empresa_session)):
-    db = session.exec(select(Produto).where(Produto.nome == produto.nome)).first()
-    if db:
-        raise HTTPException(status_code=400, detail="Produto já cadastrado com este nome")
+    stmt = select(Produto).where(func.lower(Produto.nome) == func.lower(produto.nome.strip()))
+    candidatos = session.exec(stmt).all()
+    for c in candidatos:
+        c_carac = (c.caracteristica or "").strip().lower()
+        p_carac = (produto.caracteristica or "").strip().lower()
+        if c_carac == p_carac:
+            raise HTTPException(status_code=400, detail="Produto já cadastrado com esta variação/característica.")
     produto.quantidade_estoque = 0  # sempre inicia zerado
     session.add(produto)
     session.commit()

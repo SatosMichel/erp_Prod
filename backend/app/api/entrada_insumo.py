@@ -1,6 +1,7 @@
 from app.dependencies import get_empresa_session
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import Session, select
+from sqlalchemy import func
 from app.models.entrada_insumo import EntradaInsumo
 from app.models.insumo import Insumo
 from pydantic import BaseModel
@@ -25,8 +26,8 @@ def registrar_entrada(entrada: EntradaInsumoCreate, session: Session = Depends(g
     # Monta a chave de busca: nome + característica (para diferenciar variações)
     insumo = None
 
-    # Tenta encontrar por nome e característica
-    stmt = select(Insumo).where(Insumo.nome == entrada.insumo_nome)
+    # Tenta encontrar por nome e característica (ignorando maiúsculas e espaços)
+    stmt = select(Insumo).where(func.lower(Insumo.nome) == func.lower(entrada.insumo_nome.strip()))
     candidatos = session.exec(stmt).all()
 
     if entrada.caracteristica:

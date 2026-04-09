@@ -1,6 +1,7 @@
 from app.dependencies import get_empresa_session
 from fastapi import APIRouter, HTTPException, Depends
 from sqlmodel import Session, select
+from sqlalchemy import func
 from app.models.insumo import Insumo
 from typing import List
 
@@ -9,9 +10,13 @@ router = APIRouter()
 
 @router.post("/insumos/", response_model=Insumo)
 def create_insumo(insumo: Insumo, session: Session = Depends(get_empresa_session)):
-    db_insumo = session.exec(select(Insumo).where(Insumo.nome == insumo.nome)).first()
-    if db_insumo:
-        raise HTTPException(status_code=400, detail="Insumo já cadastrado com este nome")
+    stmt = select(Insumo).where(func.lower(Insumo.nome) == func.lower(insumo.nome.strip()))
+    candidatos = session.exec(stmt).all()
+    for c in candidatos:
+        c_carac = (c.caracteristica or "").strip().lower()
+        i_carac = (insumo.caracteristica or "").strip().lower()
+        if c_carac == i_carac:
+            raise HTTPException(status_code=400, detail="Insumo já cadastrado com esta exata característica ou variação.")
     session.add(insumo)
     session.commit()
     session.refresh(insumo)
