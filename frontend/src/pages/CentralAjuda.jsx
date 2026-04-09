@@ -40,54 +40,64 @@ export default function CentralAjuda() {
 
       <div style={styles.card}>
         <h2 style={{ fontSize: "18px", fontWeight: 700, marginBottom: "24px", display: "flex", alignItems: "center", gap: "8px" }}>
-          🗺️ Como o sistema funciona?
+          🗺️ Como o sistema funciona? Passo a Passo
         </h2>
-        <div style={{ display: "flex", alignItems: "flex-start", gap: "16px", flexWrap: "wrap", justifyContent: "center" }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: "16px" }}>
           
-          {/* Box 1: Estoque de Insumos */}
+          {/* Box 1: Compras e Matérias-Primas */}
           <div style={styles.boxStyle}>
             <div style={styles.iconWrapper("#f59e0b")}>
               <Package size={24} />
             </div>
-            <h3 style={styles.boxTitle}>1. Estoque de Insumos</h3>
+            <h3 style={styles.boxTitle}>1. Comprar Insumos</h3>
             <p style={styles.boxDesc}>
-              Comece cadastrando suas matérias-primas.<br/>
+              A primeira coisa a se fazer no sistema é <b>LANÇAR UMA ENTRADA DE INSUMO</b>. É aqui que você informa o que comprou, quanto pagou e carrega o seu estoque das matérias-primas bases.<br/><br/>
               <b>Dica:</b> Registre quilos usando casas decimais (Ex: 0.5 para 500g).
             </p>
-            <Link to="/dashboard/estoque/entrada" style={{ color: "#f59e0b", fontSize: "13px", textDecoration: "none", fontWeight: 600, marginTop: "auto" }}>
-              Dar Entrada
+            <Link to="/dashboard/estoque/entrada" style={{ color: "#f59e0b", fontSize: "13px", textDecoration: "none", fontWeight: 600, marginTop: "auto", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "12px", width: "100%" }}>
+              Lançar Compra
             </Link>
           </div>
 
-          <ArrowRight size={24} style={styles.arrow} className="hidden md:block" />
+          {/* Box 2: Ficha Técnica e Cadastro de Produto */}
+          <div style={styles.boxStyle}>
+            <div style={styles.iconWrapper("#8b5cf6")}>
+              <Calculator size={24} />
+            </div>
+            <h3 style={styles.boxTitle}>2. Ficha Técnica</h3>
+            <p style={styles.boxDesc}>
+              Com os insumos em estoque, vá até o <b>CADASTRAR PRODUTO</b>. Crie o seu "Produto Final" e vincule quais insumos (e qual quantidade) ele gasta em sua receita para fabricar 1 unidade.<br/><br/> Configure também o banco de horas!
+            </p>
+            <Link to="/dashboard/estoque/cadastro-produto" style={{ color: "#8b5cf6", fontSize: "13px", textDecoration: "none", fontWeight: 600, marginTop: "auto", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "12px", width: "100%" }}>
+              Cadastrar Produto e Ficha
+            </Link>
+          </div>
 
-          {/* Box 2: Produção */}
+          {/* Box 3: Produção */}
           <div style={styles.boxStyle}>
             <div style={styles.iconWrapper("#3b82f6")}>
               <Building2 size={24} />
             </div>
-            <h3 style={styles.boxTitle}>2. Produção (Ficha)</h3>
+            <h3 style={styles.boxTitle}>3. Linha de Produção</h3>
             <p style={styles.boxDesc}>
-              Use os insumos para fabricar o seu Produto Final. O sistema dá baixa no estoque de forma automática.
+              Vá na aba <b>PRODUÇÃO</b> para gerar Ordens de Produção. O sistema baterá o seu alvo e a sua Ficha Técnica, descontando os seus insumos automaticamente e transformando-os em estoque pro Produto Final!
             </p>
-            <Link to="/dashboard/producao" style={{ color: "#3b82f6", fontSize: "13px", textDecoration: "none", fontWeight: 600, marginTop: "auto" }}>
+            <Link to="/dashboard/producao" style={{ color: "#3b82f6", fontSize: "13px", textDecoration: "none", fontWeight: 600, marginTop: "auto", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "12px", width: "100%" }}>
               Ir para Produção
             </Link>
           </div>
 
-          <ArrowRight size={24} style={styles.arrow} className="hidden md:block" />
-
-          {/* Box 3: Vendas & Finanças */}
+          {/* Box 4: Vendas & Finanças */}
           <div style={styles.boxStyle}>
             <div style={styles.iconWrapper("#10b981")}>
               <ShoppingCart size={24} />
             </div>
-            <h3 style={styles.boxTitle}>3. Vendas & Financeiro</h3>
+            <h3 style={styles.boxTitle}>4. Vendas & PDV</h3>
             <p style={styles.boxDesc}>
-              Com o produto pronto, lance as Vendas. Isso alimenta as comissões e os indicadores do painel administrativo.
+              Esvazie seu estoque rentabilizando! Seus vendedores lançam as vendas do "Produto Final". Isso alimentará tudo: As Comissões, seu Histórico de faturamento e subtrai o Estoque Final.
             </p>
-            <Link to="/dashboard/vendas" style={{ color: "#10b981", fontSize: "13px", textDecoration: "none", fontWeight: 600, marginTop: "auto" }}>
-              Lançar Vendas
+            <Link to="/dashboard/vendas" style={{ color: "#10b981", fontSize: "13px", textDecoration: "none", fontWeight: 600, marginTop: "auto", borderTop: "1px solid rgba(255,255,255,0.05)", paddingTop: "12px", width: "100%" }}>
+              Lançar Venda Final
             </Link>
           </div>
 
