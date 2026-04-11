@@ -19,7 +19,7 @@ export default function Despesas() {
   const loadDespesas = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`http://localhost:8000/api/financeiro/despesas?mes=${mes}&ano=${ano}`, {
+      const response = await fetch(`/api/financeiro/despesas?mes=${mes}&ano=${ano}`, {
         headers: { "Authorization": `Bearer ${localStorage.getItem('jwt_token')}` }
       })
       if (response.ok) {
@@ -34,7 +34,9 @@ export default function Despesas() {
   }
 
   useEffect(() => {
-    fetch(`http://localhost:8000/api/financeiro/insumos-map`)
+    fetch(`/api/financeiro/insumos-map`, {
+      headers: { "Authorization": `Bearer ${localStorage.getItem('jwt_token')}` }
+    })
       .then(r => r.ok ? r.json() : {})
       .then(data => setInsumoMap(data))
       .catch(() => {})
@@ -58,7 +60,7 @@ export default function Despesas() {
   const handleSave = async (e) => {
     e.preventDefault()
     try {
-      const response = await fetch(`http://localhost:8000/api/financeiro/despesas-extras`, {
+      const response = await fetch(`/api/financeiro/despesas-extras`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
@@ -87,7 +89,7 @@ export default function Despesas() {
     
     try {
       const realId = id.replace("ext_", "")
-      const response = await fetch(`http://localhost:8000/api/financeiro/despesas-extras/${realId}`, {
+      const response = await fetch(`/api/financeiro/despesas-extras/${realId}`, {
         method: "DELETE",
         headers: { "Authorization": `Bearer ${localStorage.getItem('jwt_token')}` }
       })

@@ -19,8 +19,8 @@ export default function Gestao() {
     const headers = { Authorization: `Bearer ${token}` }
     try {
       const [resBalanco, resKpis] = await Promise.all([
-        fetch(`http://localhost:8000/api/financeiro/balanco?ano=${ano}`, { headers }),
-        fetch(`http://localhost:8000/api/financeiro/dashboard-kpis`, { headers })
+        fetch(`/api/financeiro/balanco?ano=${ano}`, { headers }),
+        fetch(`/api/financeiro/dashboard-kpis`, { headers })
       ])
       if (resBalanco.ok) setBalanco(await resBalanco.json())
       if (resKpis.ok) setKpis(await resKpis.json())

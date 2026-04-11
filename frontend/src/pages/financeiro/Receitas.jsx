@@ -19,7 +19,7 @@ export default function Receitas() {
   const loadReceitas = async () => {
     setLoading(true)
     try {
-      const response = await fetch(`http://localhost:8000/api/financeiro/receitas?mes=${mes}&ano=${ano}`, {
+      const response = await fetch(`/api/financeiro/receitas?mes=${mes}&ano=${ano}`, {
         headers: { "Authorization": `Bearer ${localStorage.getItem('jwt_token')}` }
       })
       if (response.ok) {
@@ -41,7 +41,7 @@ export default function Receitas() {
   const handleSave = async (e) => {
     e.preventDefault()
     try {
-      const response = await fetch(`http://localhost:8000/api/financeiro/receitas-extras`, {
+      const response = await fetch(`/api/financeiro/receitas-extras`, {
         method: "POST",
         headers: { 
           "Content-Type": "application/json",
