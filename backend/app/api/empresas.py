@@ -137,6 +137,25 @@ async def upload_logo(cnpj: str, file: UploadFile = File(...), token: str = Depe
 
 # ─── Consulta CNPJ na Receita Federal (API pública com fallback) ──────────────
 
+def _montar_endereco(logradouro="", numero="", complemento="", bairro="", municipio="", uf="", cep=""):
+    """Monta o endereço filtrando partes vazias para não gerar vírgulas soltas."""
+    partes_rua = [p.strip() for p in [logradouro, numero, complemento] if p and p.strip()]
+    rua = ", ".join(partes_rua) if partes_rua else ""
+    partes_local = [p.strip() for p in [bairro] if p and p.strip()]
+    cidade_uf = f"{municipio.strip()}/{uf.strip()}" if municipio and uf else (municipio or uf or "")
+    todos = [p for p in [rua, *partes_local, cidade_uf] if p]
+    endereco = " - ".join(todos) if todos else ""
+    if cep and cep.strip():
+        endereco += f" | CEP: {cep.strip()}"
+    return endereco
+
+def _extrair_telefone_brasil(data):
+    """Extrai telefone da BrasilAPI (campo ddd_telefone_1)."""
+    raw = data.get("ddd_telefone_1", "")
+    if raw and len(raw) >= 10:
+        return f"({raw[:2]}) {raw[2:]}"
+    return raw or ""
+
 @router.get("/consulta-cnpj/{cnpj}")
 async def consultar_cnpj(cnpj: str):
     cnpj_limpo = "".join(c for c in cnpj if c.isdigit())
@@ -153,12 +172,17 @@ async def consultar_cnpj(cnpj: str):
                 "nome": data.get("razao_social", ""),
                 "fantasia": data.get("nome_fantasia", ""),
                 "cnpj": cnpj,
-                "endereco": f"{data.get('logradouro','')}, {data.get('numero','')}, {data.get('municipio','')}/{data.get('uf','')}",
-                "telefone": data.get("ddd_telefone_1", ""),
+                "endereco": _montar_endereco(
+                    data.get("logradouro", ""), data.get("numero", ""),
+                    data.get("complemento", ""), data.get("bairro", ""),
+                    data.get("municipio", ""), data.get("uf", ""),
+                    data.get("cep", "")
+                ),
+                "telefone": _extrair_telefone_brasil(data),
                 "situacao": data.get("descricao_situacao_cadastral", "")
             }
     except Exception:
-        pass  # fallback abaixo
+        pass
 
     # Tentativa 2: ReceitaWS (fallback)
     try:
@@ -171,15 +195,16 @@ async def consultar_cnpj(cnpj: str):
             data2 = res2.json()
             if data2.get("status") == "ERROR":
                 raise HTTPException(status_code=404, detail=data2.get("message", "CNPJ não encontrado"))
-            logradouro = data2.get("logradouro", "")
-            numero = data2.get("numero", "")
-            municipio = data2.get("municipio", "")
-            uf = data2.get("uf", "")
             return {
                 "nome": data2.get("nome", ""),
                 "fantasia": data2.get("fantasia", ""),
                 "cnpj": cnpj,
-                "endereco": f"{logradouro}, {numero}, {municipio}/{uf}",
+                "endereco": _montar_endereco(
+                    data2.get("logradouro", ""), data2.get("numero", ""),
+                    data2.get("complemento", ""), data2.get("bairro", ""),
+                    data2.get("municipio", ""), data2.get("uf", ""),
+                    data2.get("cep", "")
+                ),
                 "telefone": data2.get("telefone", ""),
                 "situacao": data2.get("situacao", "")
             }
