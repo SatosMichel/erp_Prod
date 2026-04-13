@@ -135,29 +135,58 @@ async def upload_logo(cnpj: str, file: UploadFile = File(...), token: str = Depe
 
     return {"logo_url": logo_url}
 
-# ─── Consulta CNPJ na Receita Federal (API pública) ──────────────────────────
+# ─── Consulta CNPJ na Receita Federal (API pública com fallback) ──────────────
 
 @router.get("/consulta-cnpj/{cnpj}")
 async def consultar_cnpj(cnpj: str):
     cnpj_limpo = "".join(c for c in cnpj if c.isdigit())
     if len(cnpj_limpo) != 14:
         raise HTTPException(status_code=400, detail="CNPJ deve ter 14 dígitos")
+
+    # Tentativa 1: BrasilAPI
     try:
         async with httpx.AsyncClient(timeout=10) as client:
             res = await client.get(f"https://brasilapi.com.br/api/cnpj/v1/{cnpj_limpo}")
-        if res.status_code != 200:
-            raise HTTPException(status_code=404, detail="CNPJ não encontrado na Receita Federal")
-        data = res.json()
-        return {
-            "nome": data.get("razao_social", ""),
-            "fantasia": data.get("nome_fantasia", ""),
-            "cnpj": cnpj,
-            "endereco": f"{data.get('logradouro','')}, {data.get('numero','')}, {data.get('municipio','')}/{data.get('uf','')}",
-            "telefone": data.get("ddd_telefone_1", ""),
-            "situacao": data.get("descricao_situacao_cadastral", "")
-        }
+        if res.status_code == 200:
+            data = res.json()
+            return {
+                "nome": data.get("razao_social", ""),
+                "fantasia": data.get("nome_fantasia", ""),
+                "cnpj": cnpj,
+                "endereco": f"{data.get('logradouro','')}, {data.get('numero','')}, {data.get('municipio','')}/{data.get('uf','')}",
+                "telefone": data.get("ddd_telefone_1", ""),
+                "situacao": data.get("descricao_situacao_cadastral", "")
+            }
+    except Exception:
+        pass  # fallback abaixo
+
+    # Tentativa 2: ReceitaWS (fallback)
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            res2 = await client.get(
+                f"https://receitaws.com.br/v1/cnpj/{cnpj_limpo}",
+                headers={"Accept": "application/json"}
+            )
+        if res2.status_code == 200:
+            data2 = res2.json()
+            if data2.get("status") == "ERROR":
+                raise HTTPException(status_code=404, detail=data2.get("message", "CNPJ não encontrado"))
+            logradouro = data2.get("logradouro", "")
+            numero = data2.get("numero", "")
+            municipio = data2.get("municipio", "")
+            uf = data2.get("uf", "")
+            return {
+                "nome": data2.get("nome", ""),
+                "fantasia": data2.get("fantasia", ""),
+                "cnpj": cnpj,
+                "endereco": f"{logradouro}, {numero}, {municipio}/{uf}",
+                "telefone": data2.get("telefone", ""),
+                "situacao": data2.get("situacao", "")
+            }
     except httpx.RequestError:
-        raise HTTPException(status_code=503, detail="Não foi possível consultar a Receita Federal")
+        pass
+
+    raise HTTPException(status_code=404, detail="CNPJ não encontrado. Tente novamente em alguns segundos.")
 
 # ─── Dados da empresa pelo CNPJ do token ─────────────────────────────────────
 
