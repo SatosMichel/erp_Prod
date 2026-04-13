@@ -55,7 +55,7 @@ export default function Configuracoes({ onClose }) {
     try {
       // Salvar dados da empresa
       const cnpjEncoded = encodeURIComponent(empresa.cnpj)
-      const resSave = await fetch(`/api/empresas/${cnpjEncoded}`, {
+      const resSave = await fetch(`/api/empresas/atualizar?cnpj=${cnpjEncoded}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json", Authorization: `Bearer ${token()}` },
         body: JSON.stringify({ nome: empresa.nome, ie: empresa.ie, endereco: empresa.endereco, telefone: empresa.telefone })
@@ -66,7 +66,7 @@ export default function Configuracoes({ onClose }) {
       if (logoFile) {
         const formData = new FormData()
         formData.append("file", logoFile)
-        const resLogo = await fetch(`/api/empresas/${cnpjEncoded}/logo`, {
+        const resLogo = await fetch(`/api/empresas/upload-logo?cnpj=${cnpjEncoded}`, {
           method: "POST",
           headers: { Authorization: `Bearer ${token()}` },
           body: formData

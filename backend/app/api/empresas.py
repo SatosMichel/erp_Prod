@@ -76,7 +76,7 @@ class EmpresaUpdate(BaseModel):
     endereco: Optional[str] = None
     telefone: Optional[str] = None
 
-@router.put("/{cnpj}")
+@router.put("/atualizar")
 def atualizar_empresa(cnpj: str, dados: EmpresaUpdate, token: str = Depends(oauth2_scheme), session: Session = Depends(get_master_session)):
     # Permite que admin da própria empresa edite seus dados
     try:
@@ -102,7 +102,7 @@ def atualizar_empresa(cnpj: str, dados: EmpresaUpdate, token: str = Depends(oaut
 
 # ─── Upload de logomarca ──────────────────────────────────────────────────────
 
-@router.post("/{cnpj}/logo")
+@router.post("/upload-logo")
 async def upload_logo(cnpj: str, file: UploadFile = File(...), token: str = Depends(oauth2_scheme), session: Session = Depends(get_master_session)):
     try:
         payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
