@@ -19,10 +19,10 @@ export default function ControleEstoque() {
   return (
     <div style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       {/* Header */}
-      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px" }}>
+      <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "24px", flexWrap: "wrap" }}>
         <button onClick={() => navigate("/dashboard")} style={{
-          background: "rgba(255,255,255,0.05)", border: "1px solid rgba(255,255,255,0.1)",
-          color: "#94a3b8", borderRadius: "8px", padding: "6px 12px", cursor: "pointer", fontSize: "13px"
+          background: "var(--bg-elevated)", border: "1px solid var(--border-default)",
+          color: "var(--text-secondary)", borderRadius: "8px", padding: "6px 12px", cursor: "pointer", fontSize: "13px", fontFamily: "inherit"
         }}>
           ← Dashboard
         </button>
@@ -30,29 +30,31 @@ export default function ControleEstoque() {
           <div style={{ color: "#3b82f6", fontSize: "12px", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.5px" }}>
             ERP Produção
           </div>
-          <h1 style={{ color: "white", fontSize: "24px", fontWeight: 800, margin: 0 }}>
+          <h1 style={{ color: "var(--text-primary)", fontSize: "22px", fontWeight: 800, margin: 0 }}>
             Controle de Estoque
           </h1>
         </div>
       </div>
 
-      {/* Tab Navigation */}
+      {/* Tab Navigation — com scroll horizontal no mobile */}
       <div style={{
         display: "flex", gap: "4px", marginBottom: "24px",
-        background: "#0a0f1e", borderRadius: "12px", padding: "4px",
-        border: "1px solid rgba(255,255,255,0.06)",
+        background: "var(--bg-surface)", borderRadius: "12px", padding: "4px",
+        border: "1px solid var(--border-subtle)",
+        overflowX: "auto", WebkitOverflowScrolling: "touch",
       }}>
         {abas.map(aba => {
           const ativa = abaAtiva === aba.id
           return (
             <button key={aba.id} onClick={() => setAbaAtiva(aba.id)} style={{
-              flex: 1, padding: "10px 16px", borderRadius: "9px", border: "none", cursor: "pointer",
-              background: ativa ? "#1e293b" : "transparent",
-              color: ativa ? "white" : "#475569",
+              flex: "0 0 auto", padding: "9px 14px", borderRadius: "9px", border: "none", cursor: "pointer",
+              background: ativa ? "var(--bg-elevated)" : "transparent",
+              color: ativa ? "var(--text-primary)" : "var(--text-muted)",
               fontWeight: ativa ? 700 : 500, fontSize: "13px",
-              boxShadow: ativa ? "0 1px 4px rgba(0,0,0,0.3)" : "none",
+              fontFamily: "inherit",
+              boxShadow: ativa ? "var(--shadow-sm)" : "none",
               transition: "all 0.15s ease", display: "flex", alignItems: "center",
-              justifyContent: "center", gap: "6px",
+              justifyContent: "center", gap: "5px", whiteSpace: "nowrap",
             }}>
               <span>{aba.icon}</span>
               <span>{aba.label}</span>

@@ -8,32 +8,32 @@ const api = (url, opts = {}) =>
 
 const styles = {
   page: { fontFamily: "'Inter', system-ui, sans-serif" },
-  title: { color: "white", fontSize: "22px", fontWeight: 800, marginBottom: "4px" },
-  subtitle: { color: "#475569", fontSize: "13px", marginBottom: "24px" },
+  title: { color: "var(--text-primary)", fontSize: "20px", fontWeight: 800, marginBottom: "4px" },
+  subtitle: { color: "var(--text-muted)", fontSize: "13px", marginBottom: "24px" },
   card: {
-    background: "#0f1629", border: "1px solid rgba(255,255,255,0.06)",
-    borderRadius: "14px", padding: "24px", marginBottom: "24px",
+    background: "var(--bg-card)", border: "1px solid var(--border-subtle)",
+    borderRadius: "14px", padding: "20px", marginBottom: "20px",
   },
   label: {
-    color: "#94a3b8", fontSize: "12px", fontWeight: 600, textTransform: "uppercase",
+    color: "var(--text-secondary)", fontSize: "12px", fontWeight: 600, textTransform: "uppercase",
     letterSpacing: "0.5px", display: "block", marginBottom: "6px",
   },
   input: {
-    width: "100%", background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)",
-    borderRadius: "8px", padding: "10px 12px", color: "white", fontSize: "14px",
-    outline: "none", boxSizing: "border-box",
+    width: "100%", background: "var(--bg-elevated)", border: "1px solid var(--border-default)",
+    borderRadius: "8px", padding: "10px 12px", color: "var(--text-primary)", fontSize: "14px",
+    outline: "none", boxSizing: "border-box", fontFamily: "inherit",
   },
   btn: (color = "#3b82f6") => ({
     background: color, color: "white", border: "none", borderRadius: "8px",
-    padding: "10px 20px", fontSize: "14px", fontWeight: 600, cursor: "pointer",
+    padding: "10px 20px", fontSize: "14px", fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
   }),
   table: { width: "100%", borderCollapse: "collapse" },
   th: {
-    color: "#475569", fontSize: "11px", textTransform: "uppercase",
+    color: "var(--text-muted)", fontSize: "11px", textTransform: "uppercase",
     letterSpacing: "0.5px", padding: "10px 12px", textAlign: "left",
-    borderBottom: "1px solid rgba(255,255,255,0.06)",
+    borderBottom: "1px solid var(--border-subtle)", whiteSpace: "nowrap",
   },
-  td: { color: "#cbd5e1", fontSize: "13px", padding: "12px 12px", borderBottom: "1px solid rgba(255,255,255,0.04)" },
+  td: { color: "var(--text-secondary)", fontSize: "13px", padding: "12px 12px", borderBottom: "1px solid var(--border-subtle)" },
   alert: (type) => ({
     padding: "10px 14px", borderRadius: "8px", marginBottom: "16px", fontSize: "13px",
     background: type === "error" ? "rgba(239,68,68,0.1)" : "rgba(16,185,129,0.1)",
@@ -139,12 +139,6 @@ export default function EntradaInsumo() {
     } finally { setLoading(false) }
   }
 
-  const getNomeInsumo = (id) => {
-    const ins = insumos.find(i => i.id === id)
-    if (!ins) return `#${id}`
-    return ins.caracteristica ? `${ins.nome} — ${ins.caracteristica}` : ins.nome
-  }
-
   const handleExcluir = async (id) => {
     if (!window.confirm("Deseja realmente excluir esta entrada? O estoque correspondente será deduzido.")) return
     setLoading(true)
@@ -172,22 +166,22 @@ export default function EntradaInsumo() {
         <form onSubmit={handleSubmit}>
           {msg && <div style={styles.alert(msg.type)}>{msg.text}</div>}
 
-          {/* LINHA 1: Nome + Característica */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "16px", marginBottom: "16px" }}>
+          {/* LINHA 1: Nome + Característica — empilha no mobile */}
+          <div style={{ display: "flex", gap: "14px", marginBottom: "16px", flexWrap: "wrap" }}>
             {/* Nome do Insumo com autocomplete */}
-            <div style={{ position: "relative" }}>
+            <div style={{ position: "relative", flex: "1 1 200px", minWidth: 0 }}>
               <label style={styles.label}>Nome do Insumo *</label>
               <input
                 style={styles.input} required
                 value={form.insumo_nome}
                 onChange={e => handleNome(e.target.value)}
                 onBlur={() => setTimeout(() => setShowSugestoes(false), 200)}
-                placeholder="Ex: Filamento, Resina, PLA..."
+                placeholder="Ex: Filamento, Resina..."
               />
               {showSugestoes && nomeSugestoes.length > 0 && (
                 <div style={{
                   position: "absolute", top: "100%", left: 0, right: 0, zIndex: 10,
-                  background: "#1e293b", border: "1px solid rgba(255,255,255,0.1)",
+                  background: "var(--bg-elevated)", border: "1px solid var(--border-default)",
                   borderRadius: "8px", maxHeight: "200px", overflowY: "auto", marginTop: "4px",
                 }}>
                   {nomeSugestoes.map(i => (
@@ -195,13 +189,13 @@ export default function EntradaInsumo() {
                       onMouseDown={() => selecionarInsumo(i)}
                       style={{
                         padding: "10px 12px", cursor: "pointer",
-                        color: i.ativo ? "#cbd5e1" : "#64748b",
-                        borderBottom: "1px solid rgba(255,255,255,0.04)", fontSize: "13px",
+                        color: i.ativo ? "var(--text-secondary)" : "var(--text-muted)",
+                        borderBottom: "1px solid var(--border-subtle)", fontSize: "13px",
                         display: "flex", alignItems: "center", gap: "8px",
                       }}>
                       <span>{i.nome}</span>
                       {i.caracteristica && (
-                        <span style={{ color: "#94a3b8", fontSize: "12px" }}>— {i.caracteristica}</span>
+                        <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>— {i.caracteristica}</span>
                       )}
                       {i.unidade_medida && (
                         <span style={styles.unitBadge(i.unidade_medida)}>{i.unidade_medida}</span>
@@ -214,15 +208,15 @@ export default function EntradaInsumo() {
             </div>
 
             {/* Característica */}
-            <div>
+            <div style={{ flex: "1 1 200px", minWidth: 0 }}>
               <label style={styles.label}>Característica / Variação</label>
               <input
                 style={styles.input}
                 value={form.caracteristica}
                 onChange={e => setForm(f => ({ ...f, caracteristica: e.target.value }))}
-                placeholder="Ex: Cor Preta, Cor Azul, 1.75mm..."
+                placeholder="Ex: Cor Preta, Cor A"
               />
-              <div style={{ color: "#475569", fontSize: "11px", marginTop: "5px" }}>
+              <div style={{ color: "var(--text-muted)", fontSize: "11px", marginTop: "5px" }}>
                 Diferencie variações do mesmo insumo (ex: filamento por cor)
               </div>
             </div>
@@ -232,7 +226,7 @@ export default function EntradaInsumo() {
           <div style={{ marginBottom: "20px" }}>
             <label style={{...styles.label, display: "flex", alignItems: "center"}}>
               📏 Unidade de Medida *
-              <Tooltip position="top" text="Dica: Escolha KG se você pesa o insumo. O sistema fará a baixa na produção usando KG (ex: para usar 50 gramas na produção, você informará 0.05 KG)." />
+              <Tooltip position="top" text="Dica: Escolha KG se você pesa o insumo. O sistema fará a baixa na produção usando KG." />
             </label>
             <div style={{ display: "flex", gap: "10px", alignItems: "center", flexWrap: "wrap" }}>
               {["UND", "KG"].map(unit => (
@@ -241,34 +235,34 @@ export default function EntradaInsumo() {
                   type="button"
                   onClick={() => setForm(f => ({ ...f, unidade_medida: unit }))}
                   style={{
-                    padding: "9px 24px", borderRadius: "8px", fontSize: "13px", fontWeight: 700,
-                    cursor: "pointer", transition: "all 0.15s ease",
+                    padding: "9px 20px", borderRadius: "8px", fontSize: "13px", fontWeight: 700,
+                    cursor: "pointer", transition: "all 0.15s ease", fontFamily: "inherit",
                     background: form.unidade_medida === unit
                       ? (unit === "KG" ? "rgba(245,158,11,0.2)" : "rgba(59,130,246,0.2)")
-                      : "rgba(255,255,255,0.04)",
+                      : "var(--bg-elevated)",
                     border: form.unidade_medida === unit
                       ? `2px solid ${unit === "KG" ? "#f59e0b" : "#3b82f6"}`
-                      : "2px solid rgba(255,255,255,0.06)",
+                      : "2px solid var(--border-default)",
                     color: form.unidade_medida === unit
                       ? (unit === "KG" ? "#fbbf24" : "#60a5fa")
-                      : "#475569",
+                      : "var(--text-muted)",
                   }}
                 >
                   {unit === "UND" ? "📦 UND — Unidade" : "⚖️ KG — Quilogramas"}
                 </button>
               ))}
-              <span style={{ color: "#475569", fontSize: "12px" }}>
-                {form.unidade_medida === "UND"
-                  ? "Contagem em unidades inteiras (peças, rolos, caixas...)"
-                  : "Contagem em quilogramas (a granel, pós, resinas...)"}
-              </span>
+            </div>
+            <div style={{ color: "var(--text-muted)", fontSize: "12px", marginTop: "6px" }}>
+              {form.unidade_medida === "UND"
+                ? "Contagem em unidades inteiras (peças, rolos, caixas...)"
+                : "Contagem em quilogramas (a granel, pós, resinas...)"}
             </div>
           </div>
 
-          {/* LINHA 2: Valor + Quantidade + Condição + Data */}
-          <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr", gap: "16px", alignItems: "start", marginBottom: "20px" }}>
-            <div>
-              <label style={styles.label}>Valor de Aquisição (Total R$) *</label>
+          {/* LINHA 2: Valor + Quantidade + Condição + Data — empilha no mobile */}
+          <div style={{ display: "flex", gap: "14px", flexWrap: "wrap", alignItems: "start", marginBottom: "20px" }}>
+            <div style={{ flex: "1 1 140px", minWidth: 0 }}>
+              <label style={styles.label}>Valor Aquisição (R$) *</label>
               <input
                 style={styles.input} required type="number" step="0.01" min="0"
                 value={form.valor_aquisicao}
@@ -277,10 +271,10 @@ export default function EntradaInsumo() {
               />
             </div>
 
-            <div>
+            <div style={{ flex: "1 1 140px", minWidth: 0 }}>
               <label style={{...styles.label, display: "flex", alignItems: "center"}}>
-                Quantidade * {form.unidade_medida === "KG" ? "(KG)" : "(UND)"}
-                <Tooltip position="top" text="Use ponto para fracionar quilogramas. Exemplo: Para 1 quilo e meio, digite 1.5. Para 200 gramas, digite 0.200." />
+                Qtd * ({form.unidade_medida})
+                <Tooltip position="top" text="Use ponto para fracionar KG. Ex: 1.5 para 1kg e meio." />
               </label>
               <input
                 style={styles.input} required
@@ -298,8 +292,8 @@ export default function EntradaInsumo() {
               </div>
             </div>
 
-            <div>
-              <label style={styles.label}>Condição de Pagamento *</label>
+            <div style={{ flex: "1 1 140px", minWidth: 0 }}>
+              <label style={styles.label}>Condição Pgto *</label>
               <select
                 style={{ ...styles.input, appearance: "auto" }}
                 value={form.condicao_pagamento}
@@ -310,8 +304,8 @@ export default function EntradaInsumo() {
               </select>
             </div>
 
-            <div>
-              <label style={styles.label}>Data de Aquisição</label>
+            <div style={{ flex: "1 1 140px", minWidth: 0 }}>
+              <label style={styles.label}>Data Aquisição</label>
               <input
                 style={styles.input} type="date"
                 value={form.data_aquisicao}
@@ -338,57 +332,60 @@ export default function EntradaInsumo() {
         </form>
       </div>
 
-      {/* Histórico de Entradas */}
+      {/* Histórico de Entradas — com scroll horizontal */}
       <div style={styles.card}>
-        <div style={{ color: "white", fontWeight: 700, marginBottom: "16px" }}>Histórico de Entradas</div>
+        <div style={{ color: "var(--text-primary)", fontWeight: 700, marginBottom: "16px" }}>Histórico de Entradas</div>
         {entradas.length === 0 ? (
-          <div style={{ color: "#475569", textAlign: "center", padding: "32px" }}>Nenhuma entrada registrada ainda.</div>
+          <div style={{ color: "var(--text-muted)", textAlign: "center", padding: "32px" }}>Nenhuma entrada registrada ainda.</div>
         ) : (
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                {["#", "Insumo / Variação", "Unid.", "Qtd", "Valor Unit. (R$)", "Total (R$)", "Data", "Ação"].map(h => (
-                  <th key={h} style={styles.th}>{h}</th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {entradas.map(e => {
-                const ins = insumos.find(i => i.id === e.insumo_id)
-                const unid = ins?.unidade_medida || "UND"
-                return (
-                  <tr key={e.id}>
-                    <td style={{ ...styles.td, color: "#64748b", fontFamily: "monospace", fontSize: "12px" }}>#{e.id}</td>
-                    <td style={styles.td}>
-                      <div style={{ color: "#e2e8f0", fontWeight: 600 }}>{ins?.nome || `#${e.insumo_id}`}</div>
-                      {ins?.caracteristica && (
-                        <div style={{ color: "#64748b", fontSize: "11px", marginTop: "2px" }}>{ins.caracteristica}</div>
-                      )}
-                    </td>
-                    <td style={styles.td}>
-                      <span style={styles.unitBadge(unid)}>{unid}</span>
-                    </td>
-                    <td style={styles.td}>{Number(e.quantidade).toLocaleString("pt-BR")}</td>
-                    <td style={styles.td}>R$ {(e.valor_aquisicao / e.quantidade).toFixed(2)}</td>
-                    <td style={styles.td}>R$ {Number(e.valor_aquisicao).toFixed(2)}</td>
-                    <td style={styles.td}>{new Date(e.data_aquisicao).toLocaleDateString("pt-BR")}</td>
-                    <td style={styles.td}>
-                      <button
-                        title="Excluir entrada"
-                        disabled={loading}
-                        onClick={() => handleExcluir(e.id)}
-                        style={{
-                          background: "rgba(239,68,68,0.15)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)",
-                          borderRadius: "6px", padding: "6px 10px", fontSize: "11px", fontWeight: 700, cursor: "pointer",
-                        }}>
-                        EXCLUIR
-                      </button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+          <div style={{ overflowX: "auto", WebkitOverflowScrolling: "touch" }}>
+            <table style={styles.table}>
+              <thead>
+                <tr>
+                  {["#", "Insumo / Variação", "Unid.", "Qtd", "Val. Unit.", "Total", "Data", "Ação"].map(h => (
+                    <th key={h} style={styles.th}>{h}</th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {entradas.map(e => {
+                  const ins = insumos.find(i => i.id === e.insumo_id)
+                  const unid = ins?.unidade_medida || "UND"
+                  return (
+                    <tr key={e.id}>
+                      <td style={{ ...styles.td, color: "var(--text-muted)", fontFamily: "monospace", fontSize: "12px" }}>#{e.id}</td>
+                      <td style={styles.td}>
+                        <div style={{ color: "var(--text-primary)", fontWeight: 600 }}>{ins?.nome || `#${e.insumo_id}`}</div>
+                        {ins?.caracteristica && (
+                          <div style={{ color: "var(--text-muted)", fontSize: "11px", marginTop: "2px" }}>{ins.caracteristica}</div>
+                        )}
+                      </td>
+                      <td style={styles.td}>
+                        <span style={styles.unitBadge(unid)}>{unid}</span>
+                      </td>
+                      <td style={styles.td}>{Number(e.quantidade).toLocaleString("pt-BR")}</td>
+                      <td style={{ ...styles.td, whiteSpace: "nowrap" }}>R$ {(e.valor_aquisicao / e.quantidade).toFixed(2)}</td>
+                      <td style={{ ...styles.td, whiteSpace: "nowrap" }}>R$ {Number(e.valor_aquisicao).toFixed(2)}</td>
+                      <td style={{ ...styles.td, whiteSpace: "nowrap" }}>{new Date(e.data_aquisicao).toLocaleDateString("pt-BR")}</td>
+                      <td style={styles.td}>
+                        <button
+                          title="Excluir entrada"
+                          disabled={loading}
+                          onClick={() => handleExcluir(e.id)}
+                          style={{
+                            background: "rgba(239,68,68,0.15)", color: "#f87171", border: "1px solid rgba(239,68,68,0.3)",
+                            borderRadius: "6px", padding: "6px 10px", fontSize: "11px", fontWeight: 700, cursor: "pointer",
+                            fontFamily: "inherit", whiteSpace: "nowrap",
+                          }}>
+                          EXCLUIR
+                        </button>
+                      </td>
+                    </tr>
+                  )
+                })}
+              </tbody>
+            </table>
+          </div>
         )}
       </div>
     </div>
